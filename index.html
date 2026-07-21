@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="uk" class="">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+  <title>MEDIC DARIYA — Premium Medical Apparel</title>
+  <meta name="description" content="MEDIC DARIYA — костюм лікаря це не медична форма, це власний медичний бренд. Преміальний медичний одяг зі США." />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#007A8C',
+              light: '#0A96AB',
+              dark: '#006675',
+            },
+            ios: {
+              bg: '#F2F2F7',
+              card: '#FFFFFF',
+              text: '#000000',
+              text2: 'rgba(60,60,67,0.85)',
+              sep: 'rgba(60,60,67,0.18)',
+              darkBg: '#000000',
+              darkCard: '#1C1C1E',
+              darkCard2: '#2C2C2E',
+              darkText: '#FFFFFF',
+              darkText2: 'rgba(235,235,245,0.75)',
+              darkSep: 'rgba(84,84,88,0.6)',
+            }
+          },
+          fontFamily: {
+            sf: ['"SF Pro Display"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+          },
+          borderRadius: {
+            'ios': '1.25rem',
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body class="font-sf antialiased bg-ios-bg text-ios-text dark:bg-ios-darkBg dark:text-ios-darkText transition-colors duration-300">
+
+  <!-- ======================================================= -->
+  <!-- STICKY iOS-STYLE HEADER with glassmorphism -->
+  <!-- ======================================================= -->
+  <header class="fixed top-0 inset-x-0 z-40 backdrop-blur-xl bg-white/70 dark:bg-black/60 border-b border-gray-200/40 dark:border-gray-800/40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <!-- Logo -->
+      <button data-nav="home" class="flex items-center gap-2 group">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-black dark:bg-white/5 border border-black/5 dark:border-white/10">
+          <span class="text-brand font-extrabold text-[15px] tracking-tight leading-none">MD</span>
+        </span>
+        <span class="font-extrabold tracking-tight text-[17px] text-brand dark:text-brand-light">MEDIC DARIYA</span>
+      </button>
+
+      <!-- Right controls -->
+      <div class="flex items-center gap-2">
+        <!-- Language segmented control -->
+        <div class="relative inline-flex items-center p-0.5 rounded-full bg-black/5 dark:bg-white/10 select-none" id="lang-seg">
+          <span id="lang-thumb" class="absolute top-0.5 left-0.5 h-[calc(100%-4px)] w-1/2 rounded-full bg-brand shadow-sm transition-transform duration-300"></span>
+          <button data-lang="ua" class="relative z-10 px-3 py-1 text-[13px] font-semibold rounded-full text-white transition-colors">UA</button>
+          <button data-lang="en" class="relative z-10 px-3 py-1 text-[13px] font-semibold rounded-full text-ios-text2 dark:text-ios-darkText2 transition-colors">EN</button>
+        </div>
+
+        <!-- Theme toggle -->
+        <button id="theme-toggle" aria-label="Toggle theme"
+          class="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/20 transition">
+          <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-yellow-300"></i>
+          <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-gray-800"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-14">
+    <!-- ==================================================== -->
+    <!-- PAGE 1: HERO / HOME -->
+    <!-- ==================================================== -->
+    <section id="page-home" class="page">
+      <div class="relative overflow-hidden">
+        <!-- Ambient background gradients -->
+        <div class="absolute inset-0 -z-10 pointer-events-none">
+          <div class="absolute -top-24 -left-20 w-[520px] h-[520px] rounded-full bg-brand/20 blur-3xl"></div>
+          <div class="absolute top-40 -right-20 w-[420px] h-[420px] rounded-full bg-brand-light/20 blur-3xl"></div>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-5 sm:px-8 pt-14 sm:pt-24 pb-10 sm:pb-16 grid md:grid-cols-2 gap-10 items-center">
+          <div>
+            <div class="inline-flex items-center gap-2 rounded-full bg-brand/10 dark:bg-brand/20 text-brand dark:text-brand-light px-3 py-1 text-[13px] font-semibold mb-5">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              <span data-i18n="hero.badge">Преміум медичний одяг зі США</span>
+            </div>
+
+            <h1 class="text-[34px] sm:text-[52px] leading-[1.05] font-extrabold tracking-tight">
+              <span data-i18n="hero.slogan1">Костюм лікаря —</span><br />
+              <span class="text-brand dark:text-brand-light" data-i18n="hero.slogan2">не медична форма,</span><br />
+              <span data-i18n="hero.slogan3">а власний медичний бренд.</span>
+            </h1>
+
+            <p class="mt-6 text-[17px] sm:text-[19px] leading-relaxed text-ios-text2 dark:text-ios-darkText2 max-w-xl" data-i18n="hero.desc">
+              Ексклюзивна колекція Cherokee, Grey's Anatomy, Figs та інших світових брендів. Реальні розміри, чесні ціни та особистий підхід від лікаря-анестезіолога з 20-річним стажем.
+            </p>
+
+            <div class="mt-8 flex flex-col sm:flex-row gap-3">
+              <button data-cta="shop"
+                class="inline-flex items-center justify-center gap-2 px-6 h-12 rounded-xl bg-brand hover:bg-brand-dark active:scale-[0.98] text-white font-semibold text-[16px] shadow-lg shadow-brand/25 transition">
+                <span data-i18n="hero.cta">Перейти до магазину</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+              <a href="#about"
+                class="inline-flex items-center justify-center gap-2 px-6 h-12 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-semibold text-[16px] transition">
+                <span data-i18n="hero.more">Про бренд</span>
+              </a>
+            </div>
+
+            <!-- Trust row -->
+            <div class="mt-10 grid grid-cols-3 gap-4 max-w-md">
+              <div>
+                <div class="text-2xl font-extrabold text-brand dark:text-brand-light">20+</div>
+                <div class="text-xs text-ios-text2 dark:text-ios-darkText2" data-i18n="hero.stat1">років у медицині</div>
+              </div>
+              <div>
+                <div class="text-2xl font-extrabold text-brand dark:text-brand-light">USA</div>
+                <div class="text-xs text-ios-text2 dark:text-ios-darkText2" data-i18n="hero.stat2">оригінальні бренди</div>
+              </div>
+              <div>
+                <div class="text-2xl font-extrabold text-brand dark:text-brand-light">100%</div>
+                <div class="text-xs text-ios-text2 dark:text-ios-darkText2" data-i18n="hero.stat3">персональний підбір</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero visual: stylized MD monogram -->
+          <div class="relative">
+            <div class="aspect-square max-w-md ml-auto rounded-[36px] bg-gradient-to-br from-black to-neutral-900 dark:from-neutral-900 dark:to-black relative overflow-hidden shadow-2xl shadow-black/40">
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="text-[220px] leading-none font-serif font-black text-brand-light select-none" style="letter-spacing:-0.08em;">MD</span>
+              </div>
+              <div class="absolute bottom-0 inset-x-0 p-6 text-center">
+                <div class="text-white font-extrabold tracking-[0.3em] text-[15px]">MEDIC DARIYA</div>
+              </div>
+              <!-- glow -->
+              <div class="absolute -inset-1 pointer-events-none">
+                <div class="absolute top-6 left-6 w-24 h-24 rounded-full bg-brand/40 blur-2xl"></div>
+                <div class="absolute bottom-10 right-8 w-24 h-24 rounded-full bg-brand-light/40 blur-2xl"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- About / Philosophy -->
+      <section id="about" class="max-w-6xl mx-auto px-5 sm:px-8 py-14 sm:py-20">
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="rounded-ios bg-white dark:bg-ios-darkCard p-6 shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-brand/10 dark:bg-brand/20 text-brand dark:text-brand-light flex items-center justify-center mb-4">
+              <i data-lucide="stethoscope" class="w-5 h-5"></i>
+            </div>
+            <h3 class="text-[19px] font-bold mb-1" data-i18n="feat1.title">Досвід лікаря</h3>
+            <p class="text-[15px] text-ios-text2 dark:text-ios-darkText2" data-i18n="feat1.desc">
+              Дарія — анестезіолог-реаніматолог. Кожен костюм тестується на реальному робочому дні.
+            </p>
+          </div>
+          <div class="rounded-ios bg-white dark:bg-ios-darkCard p-6 shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-brand/10 dark:bg-brand/20 text-brand dark:text-brand-light flex items-center justify-center mb-4">
+              <i data-lucide="badge-check" class="w-5 h-5"></i>
+            </div>
+            <h3 class="text-[19px] font-bold mb-1" data-i18n="feat2.title">Оригінал зі США</h3>
+            <p class="text-[15px] text-ios-text2 dark:text-ios-darkText2" data-i18n="feat2.desc">
+              Cherokee, Grey's Anatomy, Figs, Dickies, Tofflen — прямі поставки, без підробок.
+            </p>
+          </div>
+          <div class="rounded-ios bg-white dark:bg-ios-darkCard p-6 shadow-sm">
+            <div class="w-10 h-10 rounded-xl bg-brand/10 dark:bg-brand/20 text-brand dark:text-brand-light flex items-center justify-center mb-4">
+              <i data-lucide="heart" class="w-5 h-5"></i>
+            </div>
+            <h3 class="text-[19px] font-bold mb-1" data-i18n="feat3.title">Особистий підхід</h3>
+            <p class="text-[15px] text-ios-text2 dark:text-ios-darkText2" data-i18n="feat3.desc">
+              Допоможемо з розмірами, порадимо крій, покажемо реальні фото — як подрузі.
+            </p>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ==================================================== -->
+    <!-- PAGE 2: AUTH -->
+    <!-- ==================================================== -->
+    <section id="page-auth" class="page hidden">
+      <div class="max-w-md mx-auto px-5 pt-10 pb-24">
+        <div class="rounded-[28px] bg-white dark:bg-ios-darkCard shadow-xl shadow-black/5 p-6 sm:p-8">
+          <div class="text-center mb-6">
+            <div class="mx-auto w-14 h-14 rounded-2xl bg-brand text-white flex items-center justify-center font-extrabold text-xl mb-3">MD</div>
+            <h2 class="text-[24px] font-bold" data-i18n="auth.title">Створіть акаунт</h2>
+            <p class="text-[14px] text-ios-text2 dark:text-ios-darkText2 mt-1" data-i18n="auth.sub">Щоб перейти до магазину, зареєструйтесь</p>
+          </div>
+
+          <form id="auth-form" class="space-y-3" novalidate>
+            <div class="ios-field">
+              <label for="f-name" data-i18n="auth.name">Ім'я</label>
+              <input id="f-name" name="name" type="text" autocomplete="name" required />
+              <p class="err" data-err="name"></p>
+            </div>
+            <div class="ios-field">
+              <label for="f-email" data-i18n="auth.email">Пошта</label>
+              <input id="f-email" name="email" type="email" autocomplete="email" required />
+              <p class="err" data-err="email"></p>
+            </div>
+            <div class="ios-field">
+              <label for="f-pass" data-i18n="auth.pass">Пароль</label>
+              <input id="f-pass" name="password" type="password" autocomplete="new-password" required />
+              <p class="err" data-err="password"></p>
+            </div>
+            <div class="ios-field">
+              <label for="f-pass2" data-i18n="auth.pass2">Підтвердіть пароль</label>
+              <input id="f-pass2" name="password2" type="password" autocomplete="new-password" required />
+              <p class="err" data-err="password2"></p>
+            </div>
+
+            <button type="submit"
+              class="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark active:scale-[0.99] text-white font-semibold text-[16px] transition mt-2">
+              <span data-i18n="auth.submit">Створити акаунт</span>
+            </button>
+
+            <button type="button" data-nav="home"
+              class="w-full h-11 rounded-xl text-brand dark:text-brand-light font-medium text-[15px] hover:bg-brand/5 dark:hover:bg-brand/10 transition">
+              <span data-i18n="auth.back">Назад</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================== -->
+    <!-- PAGE 3: MARKETPLACE -->
+    <!-- ==================================================== -->
+    <section id="page-shop" class="page hidden">
+      <div class="max-w-6xl mx-auto px-5 sm:px-8 pt-8 pb-32">
+        <div class="flex items-end justify-between mb-6">
+          <div>
+            <h2 class="text-[32px] sm:text-[40px] font-extrabold tracking-tight" data-i18n="shop.title">Каталог</h2>
+            <p class="text-ios-text2 dark:text-ios-darkText2 text-[15px] mt-1" data-i18n="shop.sub">Свіжа колекція медичного одягу</p>
+          </div>
+          <div class="hidden sm:flex items-center gap-2 text-[14px] text-ios-text2 dark:text-ios-darkText2">
+            <i data-lucide="user-round" class="w-4 h-4"></i>
+            <span id="hello-user"></span>
+          </div>
+        </div>
+
+        <div id="product-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+      </div>
+
+      <!-- Floating cart pill -->
+      <div id="cart-pill" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-30">
+        <button id="cart-btn" class="flex items-center gap-3 pl-4 pr-2 py-2 rounded-full bg-brand text-white shadow-2xl shadow-brand/40 hover:bg-brand-dark transition">
+          <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+          <span class="text-[14px] font-semibold">
+            <span data-i18n="cart.label">Кошик</span>: <span id="cart-count">0</span> <span data-i18n="cart.items">товарів</span>
+          </span>
+          <span class="ml-2 bg-white/15 rounded-full px-3 py-1 text-[14px] font-bold">
+            <span id="cart-total">0</span> <span data-i18n="cart.currency">₴</span>
+          </span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================================================== -->
+  <!-- FOOTER -->
+  <!-- ==================================================== -->
+  <footer class="border-t border-gray-200/60 dark:border-gray-800/50 mt-4">
+    <div class="max-w-6xl mx-auto px-5 sm:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div class="text-center sm:text-left">
+        <div class="font-extrabold text-brand dark:text-brand-light tracking-tight">MEDIC DARIYA</div>
+        <div class="text-[13px] text-ios-text2 dark:text-ios-darkText2 mt-1" data-i18n="footer.rights">© 2026 MEDIC DARIYA. Усі права захищено.</div>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="https://t.me/+cFVQW-1MTcI5ODQy" target="_blank" rel="noopener"
+          class="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-[14px] font-semibold transition">
+          <i data-lucide="send" class="w-4 h-4"></i>Telegram
+        </a>
+        <a href="https://www.instagram.com/revadariiya?igsh=MWF5ZTBmeHZpdjBtYg%3D%3D&utm_source=qr" target="_blank" rel="noopener"
+          class="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-[14px] font-semibold transition">
+          <i data-lucide="instagram" class="w-4 h-4"></i>Instagram
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================================================== -->
+  <!-- ORDER ACTION SHEET (iOS) -->
+  <!-- ==================================================== -->
+  <div id="sheet" class="fixed inset-0 z-50 hidden">
+    <div id="sheet-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+    <div id="sheet-panel"
+      class="absolute inset-x-0 bottom-0 sm:inset-0 sm:m-auto sm:max-w-md sm:h-fit
+             translate-y-full sm:translate-y-4 sm:scale-95 opacity-0
+             transition-all duration-300 ease-out">
+      <div class="bg-white dark:bg-ios-darkCard rounded-t-[28px] sm:rounded-[28px] p-5 pb-8 sm:m-4 shadow-2xl">
+        <div class="w-10 h-1 rounded-full bg-black/15 dark:bg-white/20 mx-auto mb-4 sm:hidden"></div>
+        <div class="text-center px-2">
+          <div class="mx-auto w-12 h-12 rounded-2xl bg-brand/15 text-brand dark:text-brand-light flex items-center justify-center mb-3">
+            <i data-lucide="check" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-[19px] font-bold" data-i18n="sheet.title">Дякуємо за замовлення!</h3>
+          <p class="text-[14px] text-ios-text2 dark:text-ios-darkText2 mt-1" data-i18n="sheet.desc">
+            Для підтвердження та уточнення деталей оберіть зручний спосіб зв'язку з нашим менеджером:
+          </p>
+        </div>
+        <div class="mt-5 space-y-2.5">
+          <a href="https://t.me/+cFVQW-1MTcI5ODQy" target="_blank" rel="noopener"
+             class="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-[#229ED9] hover:brightness-95 text-white font-semibold transition">
+            <i data-lucide="send" class="w-4 h-4"></i>Telegram
+          </a>
+          <a href="https://www.instagram.com/revadariiya?igsh=MWF5ZTBmeHZpdjBtYg%3D%3D&utm_source=qr" target="_blank" rel="noopener"
+             class="flex items-center justify-center gap-2 w-full h-12 rounded-xl text-white font-semibold transition"
+             style="background:linear-gradient(135deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888);">
+            <i data-lucide="instagram" class="w-4 h-4"></i>Instagram
+          </a>
+          <button id="sheet-cancel"
+            class="w-full h-12 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-semibold transition">
+            <span data-i18n="sheet.cancel">Скасувати</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-[60] pointer-events-none">
+    <div id="toast-inner"
+      class="opacity-0 translate-y-[-8px] transition-all duration-300
+             px-4 py-2.5 rounded-full bg-black/85 dark:bg-white/90 text-white dark:text-black
+             text-[14px] font-semibold shadow-xl backdrop-blur-md">
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+/* MEDIC DARIYA — iOS-flavored custom styles complementing Tailwind */
+
+html { -webkit-tap-highlight-color: transparent; }
+body { font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif; }
+
+/* Smooth page fade */
+.page { animation: fadeIn .35s ease both; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* iOS-style floating-label input */
+.ios-field { position: relative; }
+.ios-field input {
+  width: 100%;
+  height: 56px;
+  padding: 22px 14px 8px;
+  border-radius: 14px;
+  background: rgba(120,120,128,0.08);
+  border: 1.5px solid transparent;
+  font-size: 16px;
+  color: inherit;
+  outline: none;
+  transition: border-color .2s, background .2s;
+}
+.dark .ios-field input { background: rgba(255,255,255,0.06); }
+.ios-field input:focus {
+  border-color: #007A8C;
+  background: rgba(0,122,140,0.06);
+}
+.ios-field label {
+  position: absolute;
+  left: 14px;
+  top: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(60,60,67,0.7);
+  pointer-events: none;
+}
+.dark .ios-field label { color: rgba(235,235,245,0.6); }
+.ios-field .err {
+  min-height: 16px;
+  margin: 4px 6px 0;
+  font-size: 12.5px;
+  color: #ff3b30;
+  font-weight: 500;
+}
+.ios-field.invalid input { border-color: #ff3b30; background: rgba(255,59,48,0.05); }
+
+/* Segmented control for sizes */
+.size-seg {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 10px;
+  background: rgba(120,120,128,0.12);
+  width: 100%;
+}
+.dark .size-seg { background: rgba(255,255,255,0.08); }
+.size-seg button {
+  padding: 6px 0;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: inherit;
+  transition: all .2s;
+}
+.size-seg button.active {
+  background: #007A8C;
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+/* Stepper */
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 10px;
+  background: rgba(120,120,128,0.12);
+  overflow: hidden;
+}
+.dark .stepper { background: rgba(255,255,255,0.08); }
+.stepper button {
+  width: 34px; height: 34px;
+  font-size: 18px; font-weight: 600;
+  color: #007A8C;
+  transition: background .15s;
+}
+.dark .stepper button { color: #0AA6BC; }
+.stepper button:hover { background: rgba(0,122,140,0.12); }
+.stepper .val {
+  min-width: 32px;
+  text-align: center;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Product image placeholder */
+.prod-img {
+  aspect-ratio: 4/5;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.prod-img::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.35), transparent 55%),
+    var(--pg, linear-gradient(135deg, #0d9fb4, #073b45));
+}
+.prod-img::after {
+  content: attr(data-mono);
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'SF Pro Display', 'Inter', serif;
+  font-size: 84px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: rgba(255,255,255,0.85);
+  text-shadow: 0 4px 24px rgba(0,0,0,0.25);
+}
+
+/* Sheet open animation */
+#sheet.open #sheet-backdrop { opacity: 1; }
+#sheet.open #sheet-panel { transform: translateY(0); opacity: 1; }
+@media (min-width: 640px) {
+  #sheet.open #sheet-panel { transform: translateY(0) scale(1); }
+}
+
+/* Toast visible */
+#toast.show #toast-inner { opacity: 1; transform: translateY(0); }
+
+/* Scrollbar minimal */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(120,120,128,0.3); border-radius: 10px; }
