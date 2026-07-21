@@ -11,14 +11,14 @@ const translations = {
     'hero.slogan1': 'Костюм лікаря —',
     'hero.slogan2': 'не медична форма,',
     'hero.slogan3': 'а власний медичний бренд.',
-    'hero.desc': "Ексклюзивна колекція Cherokee, Grey's Anatomy, Figs та інших світових брендів. Реальні розміри, чесні ціни та особистий підхід від лікаря-анестезіолога з 20-річним стажем.",
+    'hero.desc': "Ексклюзивні колекції від брендів Cherokee, Grey's Anatomy тощо. Реальні розміри, чесні ціни та особистий підхід від лікаря-анестезіолога з 20-річним стажем.",
     'hero.cta': 'Перейти до магазину', 'hero.more': 'Про бренд',
     'hero.stat1': 'років у медицині', 'hero.stat2': 'оригінальні бренди', 'hero.stat3': 'персональний підбір',
 
     'feat1.title': 'Досвід лікаря',
     'feat1.desc': 'Дарія — анестезіолог-реаніматолог. Кожен костюм тестується на реальному робочому дні.',
     'feat2.title': 'Оригінал зі США',
-    'feat2.desc': "Cherokee, Grey's Anatomy, Figs, Dickies, Tofflen — прямі поставки, без підробок.",
+    'feat2.desc': "Cherokee, Grey's Anatomy, Figs, Dickies, Toffeln — прямі поставки, без підробок.",
     'feat3.title': 'Особистий підхід',
     'feat3.desc': 'Допоможемо з розмірами, порадимо крій, покажемо реальні фото — як подрузі.',
 
@@ -110,14 +110,14 @@ const translations = {
     'hero.slogan1': "A doctor's suit isn't",
     'hero.slogan2': 'a medical uniform,',
     'hero.slogan3': "it's your own medical brand.",
-    'hero.desc': "An exclusive selection of Cherokee, Grey's Anatomy, Figs and other world-class brands. Honest sizing, fair prices and a personal touch from an anesthesiologist with 20 years of experience.",
+    'hero.desc': "Exclusive collections from Cherokee, Grey's Anatomy and other world-class brands. Honest sizing, fair prices and a personal touch from an anesthesiologist with 20 years of experience.",
     'hero.cta': 'Go to Shop', 'hero.more': 'About the brand',
     'hero.stat1': 'years in medicine', 'hero.stat2': 'original brands', 'hero.stat3': 'personal picking',
 
     'feat1.title': 'Doctor-led',
     'feat1.desc': 'Dariya is a practicing anesthesiologist. Every suit is tested on a real shift.',
     'feat2.title': 'Authentic USA',
-    'feat2.desc': "Cherokee, Grey's Anatomy, Figs, Dickies, Tofflen — direct import, no fakes.",
+    'feat2.desc': "Cherokee, Grey's Anatomy, Figs, Dickies, Toffeln — direct import, no fakes.",
     'feat3.title': 'Personal touch',
     'feat3.desc': "We help with sizing, cuts and share real photos — like a friend would.",
 
