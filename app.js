@@ -67,6 +67,10 @@ const translations = {
     'shop.stock': 'В наявності', 'shop.order': 'Під замовлення',
     'shop.sizeTop': 'Розмір топ', 'shop.sizeBottom': 'Розмір штани', 'shop.pantsLen': 'Довжина',
     'shop.old': 'Стара ціна',
+    'shop.filterAll': 'Всі', 'shop.filterStock': 'В наявності', 'shop.filterOrder': 'Під замовлення',
+    'shop.filterEmpty': 'Немає товарів за цим фільтром.',
+    'cat.all': 'Всі категорії', 'cat.scrubs': 'Костюми', 'cat.gowns': 'Медичні халати',
+    'cat.tops': 'Топи', 'cat.pants': 'Штани', 'cat.shoes': 'Взуття', 'cat.acc': 'Аксесуари', 'cat.other': 'Інше',
 
     'cart.label': 'Кошик', 'cart.items': 'товарів', 'cart.currency': '₴',
     'cart.title': 'Ваша корзина', 'cart.total': 'Разом', 'cart.checkout': 'Оформити замовлення',
@@ -96,7 +100,7 @@ const translations = {
     'admin.sizesTop': 'Розмір топ', 'admin.sizesBottom': 'Розмір штани', 'admin.pantsLen': 'Довжина штанів',
     'admin.sizesHint': 'Якщо товар без штанів — залиш блок штанів і довжину порожніми.',
     'admin.oldPrice': 'Стара ціна для знижки (₴) — необовʼязково',
-    'admin.sku': 'Код товару', 'admin.color': 'Колір',
+    'admin.sku': 'Код товару', 'admin.color': 'Колір', 'admin.category': 'Категорія',
     'admin.add': 'Додати товар', 'admin.addHint': 'Додати новий товар можна прямо з каталогу',
     'admin.listTitle': 'Мої товари', 'admin.empty': 'Поки що немає доданих товарів. Кнопка «+ Додати товар» — в каталозі.',
     'admin.delete': 'Видалити', 'admin.count': 'товарів',
@@ -175,6 +179,10 @@ const translations = {
     'shop.stock': 'In stock', 'shop.order': 'On order',
     'shop.sizeTop': 'Top size', 'shop.sizeBottom': 'Pants size', 'shop.pantsLen': 'Length',
     'shop.old': 'Old price',
+    'shop.filterAll': 'All', 'shop.filterStock': 'In stock', 'shop.filterOrder': 'On order',
+    'shop.filterEmpty': 'No products match this filter.',
+    'cat.all': 'All categories', 'cat.scrubs': 'Scrubs', 'cat.gowns': 'Medical gowns',
+    'cat.tops': 'Tops', 'cat.pants': 'Pants', 'cat.shoes': 'Shoes', 'cat.acc': 'Accessories', 'cat.other': 'Other',
 
     'cart.label': 'Cart', 'cart.items': 'items', 'cart.currency': 'UAH',
     'cart.title': 'Your cart', 'cart.total': 'Total', 'cart.checkout': 'Checkout',
@@ -204,7 +212,7 @@ const translations = {
     'admin.sizesTop': 'Top size', 'admin.sizesBottom': 'Pants size', 'admin.pantsLen': 'Pants length',
     'admin.sizesHint': 'If the item has no pants — leave the pants and length blocks empty.',
     'admin.oldPrice': 'Original price for a discount (UAH) — optional',
-    'admin.sku': 'Product code', 'admin.color': 'Colour',
+    'admin.sku': 'Product code', 'admin.color': 'Colour', 'admin.category': 'Category',
     'admin.add': 'Add product', 'admin.addHint': 'Add a new product right from the catalog',
     'admin.listTitle': 'My products', 'admin.empty': 'No products yet. Use "+ Add product" in the catalog.',
     'admin.delete': 'Delete', 'admin.count': 'items',
@@ -281,6 +289,9 @@ const state = {
   cart: DB.cart.get(),
   adminPhotoData: null,
   adminAvail: 'stock',
+  adminCategory: 'scrubs',
+  shopAvail: 'all',      // 'all' | 'stock' | 'order'
+  shopCat: 'all',        // 'all' | category id
   newsPhotoData: null,
   sessionId: sessionStorage.getItem('md_sid') || (() => {
     const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -290,10 +301,10 @@ const state = {
 };
 
 const defaultProducts = [
-  { id: 'd1', price: 1650, sizes: ['S','M','L','XL'],   mono: 'DT', pg: 'linear-gradient(135deg,#0d9fb4,#053742)', avail: 'stock', builtin: true },
-  { id: 'd2', price: 1490, sizes: ['M','L','XL','XXL'], mono: 'CS', pg: 'linear-gradient(135deg,#1e1e28,#3a3a4a)', avail: 'stock', builtin: true },
-  { id: 'd3', price: 2100, sizes: ['S','M','L'],        mono: 'PS', pg: 'linear-gradient(135deg,#006675,#003d47)', avail: 'order', builtin: true },
-  { id: 'd4', price: 1250, sizes: ['S','M','L','XL'],   mono: 'CG', pg: 'linear-gradient(135deg,#e0e5ec,#a7b3c1)', avail: 'stock', builtin: true },
+  { id: 'd1', price: 1650, sizes: ['S','M','L','XL'],   mono: 'DT', pg: 'linear-gradient(135deg,#0d9fb4,#053742)', avail: 'stock', category: 'scrubs', builtin: true },
+  { id: 'd2', price: 1490, sizes: ['M','L','XL','XXL'], mono: 'CS', pg: 'linear-gradient(135deg,#1e1e28,#3a3a4a)', avail: 'stock', category: 'scrubs', builtin: true },
+  { id: 'd3', price: 2100, sizes: ['S','M','L'],        mono: 'PS', pg: 'linear-gradient(135deg,#006675,#003d47)', avail: 'order', category: 'scrubs', builtin: true },
+  { id: 'd4', price: 1250, sizes: ['S','M','L','XL'],   mono: 'CG', pg: 'linear-gradient(135deg,#e0e5ec,#a7b3c1)', avail: 'stock', category: 'gowns',  builtin: true },
 ];
 
 const SIZE_ORDER = ['XXS','XS','S','M','L','XL','2XL','3XL','4XL','5XL','6XL'];
@@ -303,7 +314,7 @@ function allProducts() {
   const builtins = defaultProducts.filter(p => !deleted.has(p.id));
   const custom = DB.products_custom.get().map(p => ({
     id: p.id, price: p.price, oldPrice: p.oldPrice ?? null,
-    sku: p.sku || '', color: p.color || '',
+    sku: p.sku || '', color: p.color || '', category: p.category || 'scrubs',
     // Legacy fallback: if a product was saved before we split top/bottom,
     // reuse its old .sizes as top sizes.
     sizesTop: Array.isArray(p.sizesTop) ? p.sizesTop : (Array.isArray(p.sizes) ? p.sizes : []),
@@ -668,9 +679,43 @@ function renderOrderCard(o) {
 // =============================================================================
 // 9. Shop rendering
 // =============================================================================
+const CATEGORY_ORDER = ['scrubs','gowns','tops','pants','shoes','acc','other'];
+
+function renderCategoryChips() {
+  const wrap = document.getElementById('category-chips');
+  if (!wrap) return;
+  // Which categories actually have products (respect current avail filter for the counts)
+  const products = allProducts();
+  const availOk = (p) => state.shopAvail === 'all' || p.avail === state.shopAvail;
+  const counts = { all: products.filter(availOk).length };
+  for (const cat of CATEGORY_ORDER) {
+    counts[cat] = products.filter(p => availOk(p) && (p.category || 'scrubs') === cat).length;
+  }
+  const chips = [['all', t('cat.all')], ...CATEGORY_ORDER.map(c => [c, t('cat.' + c)])];
+  wrap.innerHTML = chips
+    .filter(([cat]) => cat === 'all' || counts[cat] > 0)
+    .map(([cat, label]) => `
+      <button data-cat-filter="${cat}"
+        class="size-chip ${state.shopCat === cat ? 'active' : ''}">
+        ${escapeHTML(label)}<span class="ml-1 opacity-70 text-[11px]">${counts[cat]}</span>
+      </button>`).join('');
+  wrap.querySelectorAll('[data-cat-filter]').forEach(b => {
+    b.addEventListener('click', () => {
+      state.shopCat = b.getAttribute('data-cat-filter');
+      renderShop();
+    });
+  });
+}
+
 function renderShop() {
   const grid = document.getElementById('product-grid');
   if (!grid) return;
+
+  // Availability segmented control state
+  document.querySelectorAll('#avail-seg [data-avail-filter]').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-avail-filter') === state.shopAvail);
+  });
+  renderCategoryChips();
 
   const segBlock = (label, items, group) => items.length ? `
     <div class="mt-3">
@@ -680,7 +725,16 @@ function renderShop() {
       </div>
     </div>` : '';
 
-  grid.innerHTML = allProducts().map(p => {
+  const filtered = allProducts().filter(p => {
+    if (state.shopAvail !== 'all' && p.avail !== state.shopAvail) return false;
+    if (state.shopCat !== 'all' && (p.category || 'scrubs') !== state.shopCat) return false;
+    return true;
+  });
+
+  const emptyEl = document.getElementById('product-empty');
+  if (emptyEl) emptyEl.classList.toggle('hidden', filtered.length > 0);
+
+  grid.innerHTML = filtered.map(p => {
     const title = productTitle(p);
     const desc = p.desc ? `<p class="text-[12.5px] text-ios-text2 dark:text-ios-darkText2 mt-1 line-clamp-2">${escapeHTML(p.desc)}</p>` : '';
     const availLabel = p.avail === 'order' ? t('shop.order') : t('shop.stock');
@@ -975,6 +1029,15 @@ function bindAdmin() {
     });
   });
 
+  // Category picker (single-select chips)
+  document.querySelectorAll('#p-category button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#p-category button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      state.adminCategory = b.getAttribute('data-cat');
+    });
+  });
+
   // Sizes multi-select toggles (top + bottom)
   document.querySelectorAll('#p-sizes-top .size-chip, #p-sizes-bottom .size-chip, #p-pants-len .size-chip').forEach(b => {
     b.addEventListener('click', () => {
@@ -1027,6 +1090,7 @@ function bindAdmin() {
       id: 'c' + Date.now(), title: name, desc, price, oldPrice,
       sku: (fd.get('sku') || '').trim(),
       color: (fd.get('color') || '').trim(),
+      category: state.adminCategory,
       sizesTop, sizesBottom, pantsLengths,
       avail: state.adminAvail, photo: state.adminPhotoData,
       createdAt: new Date().toISOString(),
@@ -1046,6 +1110,10 @@ function bindAdmin() {
     document.querySelectorAll('#p-pants-len .size-chip').forEach(el => {
       el.classList.toggle('active', el.getAttribute('data-len') === 'Regular');
     });
+    document.querySelectorAll('#p-category button').forEach((b) => {
+      b.classList.toggle('active', b.getAttribute('data-cat') === 'scrubs');
+    });
+    state.adminCategory = 'scrubs';
     document.getElementById('p-photo-preview').classList.add('hidden');
     document.getElementById('p-photo-empty').classList.remove('hidden');
 
@@ -1456,6 +1524,14 @@ function bindGlobal() {
   });
 
   document.querySelectorAll('[data-cta="shop"]').forEach(b => b.addEventListener('click', () => go('shop')));
+
+  // Shop availability filter
+  document.querySelectorAll('#avail-seg [data-avail-filter]').forEach(b => {
+    b.addEventListener('click', () => {
+      state.shopAvail = b.getAttribute('data-avail-filter');
+      renderShop();
+    });
+  });
   document.querySelectorAll('[data-nav]').forEach(b =>
     b.addEventListener('click', () => go(b.getAttribute('data-nav')))
   );
