@@ -5,6 +5,10 @@
 // -----------------------------------------------------------------------------
 const translations = {
   ua: {
+    'nav.home': 'Головна',
+    'nav.shop': 'Магазин',
+    'nav.auth': 'Акаунт',
+
     'hero.badge': 'Преміум медичний одяг зі США',
     'hero.slogan1': 'Костюм лікаря —',
     'hero.slogan2': 'не медична форма,',
@@ -62,6 +66,10 @@ const translations = {
     'prod.4.title': 'Класичний медичний халат',
   },
   en: {
+    'nav.home': 'Home',
+    'nav.shop': 'Shop',
+    'nav.auth': 'Account',
+
     'hero.badge': 'Premium US-made medical apparel',
     'hero.slogan1': "A doctor's suit isn't",
     'hero.slogan2': 'a medical uniform,',
@@ -172,6 +180,7 @@ function updateDOM() {
   renderShop();
   renderCartPill();
   renderHelloUser();
+  updateNavThumb();
 }
 
 // -----------------------------------------------------------------------------
@@ -190,17 +199,39 @@ function toggleTheme() {
 // 5. Page navigation
 // -----------------------------------------------------------------------------
 function go(page) {
+  // "shop" requires a session; fall back to auth otherwise
+  if (page === 'shop' && !state.user) page = 'auth';
   state.currentPage = page;
   document.querySelectorAll('.page').forEach(el => el.classList.add('hidden'));
   const target = document.getElementById('page-' + page);
   if (target) {
     target.classList.remove('hidden');
-    // trigger animation reset
     target.style.animation = 'none';
     void target.offsetWidth;
     target.style.animation = '';
   }
+  updateNavThumb();
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateNavThumb() {
+  const nav = document.getElementById('main-nav');
+  const thumb = document.getElementById('nav-thumb');
+  if (!nav || !thumb) return;
+  const active = nav.querySelector(`[data-nav="${state.currentPage}"]`);
+  if (!active) return;
+  // Update pill position/size
+  const navRect = nav.getBoundingClientRect();
+  const btnRect = active.getBoundingClientRect();
+  thumb.style.width = btnRect.width + 'px';
+  thumb.style.transform = `translateX(${btnRect.left - navRect.left - 2}px)`;
+  // Recolor buttons
+  nav.querySelectorAll('.nav-btn').forEach(b => {
+    const isActive = b === active;
+    b.classList.toggle('text-white', isActive);
+    b.classList.toggle('text-ios-text2', !isActive);
+    b.classList.toggle('dark:text-ios-darkText2', !isActive);
+  });
 }
 
 function goShopOrAuth() {
@@ -425,6 +456,9 @@ function bindGlobal() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeSheet();
   });
+
+  // Keep nav pill aligned on resize
+  window.addEventListener('resize', updateNavThumb);
 }
 
 // -----------------------------------------------------------------------------
