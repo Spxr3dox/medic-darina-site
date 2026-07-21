@@ -130,11 +130,17 @@ body { font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter'
   text-shadow: 0 4px 24px rgba(0,0,0,0.25);
 }
 
-/* Sheet open animation */
-#sheet.open #sheet-backdrop { opacity: 1; }
-#sheet.open #sheet-panel { transform: translateY(0); opacity: 1; }
+/* Sheet open animation (works for #sheet, #add-sheet, #user-sheet) */
+#sheet.open #sheet-backdrop,
+#add-sheet.open #add-sheet-backdrop,
+#user-sheet.open #user-sheet-backdrop { opacity: 1; }
+#sheet.open #sheet-panel,
+#add-sheet.open #add-sheet-panel,
+#user-sheet.open #user-sheet-panel { transform: translateY(0); opacity: 1; }
 @media (min-width: 640px) {
-  #sheet.open #sheet-panel { transform: translateY(0) scale(1); }
+  #sheet.open #sheet-panel,
+  #add-sheet.open #add-sheet-panel,
+  #user-sheet.open #user-sheet-panel { transform: translateY(0) scale(1); }
 }
 
 /* Toast visible */

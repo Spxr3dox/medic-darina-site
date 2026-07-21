@@ -218,28 +218,73 @@
     <!-- PAGE 2: AUTH -->
     <!-- ==================================================== -->
     <section id="page-auth" class="page hidden">
-      <div class="max-w-md mx-auto px-5 pt-10 pb-24">
-        <!-- Signed-in card -->
-        <div id="auth-signed" class="hidden rounded-[28px] bg-white dark:bg-ios-darkCard shadow-xl shadow-black/5 p-6 sm:p-8 text-center">
-          <div class="mx-auto w-14 h-14 rounded-2xl bg-brand text-white flex items-center justify-center font-extrabold text-xl mb-3" id="signed-avatar">MD</div>
-          <h2 class="text-[22px] font-bold" id="signed-name"></h2>
-          <p class="text-[14px] text-ios-text2 dark:text-ios-darkText2 mt-1" id="signed-email"></p>
-          <div id="signed-role" class="hidden mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand/10 dark:bg-brand/20 text-brand dark:text-brand-light text-[12px] font-semibold">
-            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-            <span data-i18n="auth.roleAdmin">Адміністратор</span>
+      <!-- ============================ CABINET (signed in) ============================ -->
+      <div id="auth-signed" class="hidden max-w-3xl mx-auto px-5 pt-8 pb-24">
+        <!-- Profile card -->
+        <div class="rounded-[28px] bg-white dark:bg-ios-darkCard shadow-xl shadow-black/5 p-6 sm:p-8">
+          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+            <!-- Avatar with upload -->
+            <label for="avatar-input" class="relative group cursor-pointer shrink-0">
+              <div id="signed-avatar-wrap" class="w-24 h-24 rounded-full bg-brand text-white flex items-center justify-center font-extrabold text-3xl overflow-hidden shadow-lg shadow-brand/25">
+                <span id="signed-avatar-initials">MD</span>
+                <img id="signed-avatar-img" class="hidden absolute inset-0 w-24 h-24 object-cover rounded-full" alt="" />
+              </div>
+              <div class="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                <i data-lucide="camera" class="w-6 h-6 text-white"></i>
+              </div>
+              <input id="avatar-input" type="file" accept="image/*" class="hidden" />
+            </label>
+
+            <div class="flex-1 text-center sm:text-left min-w-0">
+              <div class="flex items-center gap-2 flex-wrap justify-center sm:justify-start">
+                <h2 class="text-[24px] font-bold" id="signed-name"></h2>
+                <button id="btn-edit-name" class="w-7 h-7 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-brand dark:text-brand-light flex items-center justify-center transition">
+                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+              <p class="text-[14px] text-ios-text2 dark:text-ios-darkText2 mt-1" id="signed-email"></p>
+              <div id="signed-role" class="hidden mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand/10 dark:bg-brand/20 text-brand dark:text-brand-light text-[12px] font-semibold">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                <span data-i18n="auth.roleAdmin">Адміністратор</span>
+              </div>
+
+              <!-- Stats -->
+              <div class="mt-4 grid grid-cols-2 gap-3 max-w-xs mx-auto sm:mx-0">
+                <div class="rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] px-3 py-2 text-center">
+                  <div class="text-[20px] font-extrabold text-brand dark:text-brand-light" id="stat-orders">0</div>
+                  <div class="text-[11px] text-ios-text2 dark:text-ios-darkText2 uppercase tracking-wide" data-i18n="cab.orders">замовлень</div>
+                </div>
+                <div class="rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] px-3 py-2 text-center">
+                  <div class="text-[20px] font-extrabold text-brand dark:text-brand-light" id="stat-total">0 ₴</div>
+                  <div class="text-[11px] text-ios-text2 dark:text-ios-darkText2 uppercase tracking-wide" data-i18n="cab.spent">сума</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="mt-6 space-y-2">
-            <button data-nav="shop" class="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-semibold transition">
+
+          <div class="mt-6 grid sm:grid-cols-3 gap-2">
+            <button data-nav="shop" class="h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-semibold transition">
               <span data-i18n="auth.goShop">До магазину</span>
             </button>
-            <button id="btn-admin-enter" class="hidden w-full h-12 rounded-xl bg-black text-white dark:bg-white dark:text-black font-semibold transition">
-              <span data-i18n="auth.goAdmin">Відкрити адмін-панель</span>
+            <button id="btn-admin-enter" class="hidden h-12 rounded-xl bg-black text-white dark:bg-white dark:text-black font-semibold transition">
+              <span data-i18n="auth.goAdmin">Адмін-панель</span>
             </button>
-            <button id="btn-signout" class="w-full h-11 rounded-xl text-red-500 font-medium hover:bg-red-500/10 transition">
+            <button id="btn-signout" class="h-12 rounded-xl bg-red-500/10 text-red-500 font-semibold hover:bg-red-500/20 transition">
               <span data-i18n="auth.signout">Вийти</span>
             </button>
           </div>
         </div>
+
+        <!-- Order history -->
+        <div class="mt-6 rounded-[28px] bg-white dark:bg-ios-darkCard shadow-sm p-5 sm:p-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-[18px]" data-i18n="cab.historyTitle">Мої замовлення</h3>
+            <span id="orders-count-badge" class="text-[13px] text-ios-text2 dark:text-ios-darkText2"></span>
+          </div>
+          <div id="orders-list" class="space-y-3"></div>
+          <p id="orders-empty" class="text-center text-ios-text2 dark:text-ios-darkText2 text-[14px] py-8" data-i18n="cab.historyEmpty">Ви ще не робили замовлень. Час почати!</p>
+        </div>
+      </div>
 
         <!-- Form card -->
         <div id="auth-form-card" class="rounded-[28px] bg-white dark:bg-ios-darkCard shadow-xl shadow-black/5 p-6 sm:p-8">
@@ -300,88 +345,133 @@
     <!-- PAGE 4: ADMIN PANEL -->
     <!-- ==================================================== -->
     <section id="page-admin" class="page hidden">
-      <div class="max-w-6xl mx-auto px-5 sm:px-8 pt-8 pb-24">
+      <div class="max-w-4xl mx-auto px-5 sm:px-8 pt-8 pb-24">
         <div class="flex items-center gap-3 mb-6">
           <div class="w-11 h-11 rounded-2xl bg-brand text-white flex items-center justify-center">
             <i data-lucide="shield-check" class="w-5 h-5"></i>
           </div>
-          <div>
+          <div class="flex-1">
             <h2 class="text-[28px] sm:text-[36px] font-extrabold tracking-tight" data-i18n="admin.title">Адмін-панель</h2>
-            <p class="text-ios-text2 dark:text-ios-darkText2 text-[14px]" data-i18n="admin.sub">Додайте товари в магазин</p>
+            <p class="text-ios-text2 dark:text-ios-darkText2 text-[14px]" data-i18n="admin.sub">Керуйте товарами та замовленнями</p>
           </div>
         </div>
 
-        <div class="grid lg:grid-cols-5 gap-5">
-          <!-- Add product form -->
-          <div class="lg:col-span-2 rounded-[24px] bg-white dark:bg-ios-darkCard shadow-sm p-5 sm:p-6 h-fit">
-            <h3 class="font-bold text-[18px] mb-4" data-i18n="admin.formTitle">Новий товар</h3>
-
-            <form id="admin-form" class="space-y-3" novalidate>
-              <div class="ios-field">
-                <label for="p-name" data-i18n="admin.name">Назва</label>
-                <input id="p-name" name="name" type="text" required />
-                <p class="err" data-err="p-name"></p>
-              </div>
-
-              <div class="ios-field">
-                <label for="p-desc" data-i18n="admin.desc">Опис</label>
-                <textarea id="p-desc" name="desc" rows="3" required></textarea>
-                <p class="err" data-err="p-desc"></p>
-              </div>
-
-              <div class="ios-field">
-                <label for="p-price" data-i18n="admin.price">Ціна за одиницю (₴)</label>
-                <input id="p-price" name="price" type="number" min="1" step="1" required />
-                <p class="err" data-err="p-price"></p>
-              </div>
-
-              <!-- Availability segmented -->
-              <div>
-                <div class="text-[12px] font-medium text-ios-text2 dark:text-ios-darkText2 mb-1.5 ml-1" data-i18n="admin.avail">Доступність</div>
-                <div class="size-seg" id="p-avail">
-                  <button type="button" data-avail="stock" class="active">
-                    <span data-i18n="admin.availStock">В наявності</span>
-                  </button>
-                  <button type="button" data-avail="order">
-                    <span data-i18n="admin.availOrder">Під замовлення</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Photo upload -->
-              <div>
-                <div class="text-[12px] font-medium text-ios-text2 dark:text-ios-darkText2 mb-1.5 ml-1" data-i18n="admin.photo">Фото товару</div>
-                <label for="p-photo" class="flex flex-col items-center justify-center h-40 rounded-2xl border-2 border-dashed border-black/15 dark:border-white/15 hover:border-brand dark:hover:border-brand-light cursor-pointer transition overflow-hidden relative bg-black/[0.02] dark:bg-white/[0.03]">
-                  <img id="p-photo-preview" class="hidden absolute inset-0 w-full h-full object-cover" />
-                  <div id="p-photo-empty" class="text-center text-ios-text2 dark:text-ios-darkText2">
-                    <i data-lucide="image-plus" class="w-6 h-6 mx-auto mb-1"></i>
-                    <div class="text-[13px] font-semibold" data-i18n="admin.photoDrop">Натисніть, щоб обрати фото</div>
-                    <div class="text-[11px] opacity-70">JPG / PNG · до 2 MB</div>
-                  </div>
-                </label>
-                <input id="p-photo" name="photo" type="file" accept="image/*" class="hidden" />
-                <p class="err" data-err="p-photo"></p>
-              </div>
-
-              <button type="submit"
-                class="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-semibold transition mt-2">
-                <span data-i18n="admin.add">Додати товар</span>
-              </button>
-            </form>
+        <!-- Online users -->
+        <div class="rounded-[24px] bg-white dark:bg-ios-darkCard shadow-sm p-5 sm:p-6 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="relative flex h-2.5 w-2.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-70"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <h3 class="font-bold text-[18px]" data-i18n="admin.onlineTitle">Онлайн зараз</h3>
+              <span id="online-count" class="text-brand dark:text-brand-light font-extrabold">0</span>
+            </div>
+            <span class="text-[12px] text-ios-text2 dark:text-ios-darkText2" data-i18n="admin.onlineHint">Дані з цього браузера</span>
           </div>
+          <div id="online-list" class="flex flex-wrap gap-2"></div>
+          <p id="online-empty" class="text-center text-ios-text2 dark:text-ios-darkText2 text-[14px] py-6" data-i18n="admin.onlineEmpty">Ніхто не онлайн.</p>
+        </div>
 
-          <!-- Products list -->
-          <div class="lg:col-span-3">
-            <div class="flex items-center justify-between mb-3">
+        <!-- Products section -->
+        <div class="rounded-[24px] bg-white dark:bg-ios-darkCard shadow-sm p-5 sm:p-6 mb-6">
+          <div class="flex items-center justify-between gap-3 mb-4">
+            <div>
               <h3 class="font-bold text-[18px]" data-i18n="admin.listTitle">Мої товари</h3>
               <span class="text-[13px] text-ios-text2 dark:text-ios-darkText2" id="admin-count"></span>
             </div>
-            <div id="admin-list" class="space-y-3"></div>
-            <p id="admin-empty" class="hidden text-center text-ios-text2 dark:text-ios-darkText2 text-[14px] py-10" data-i18n="admin.empty">Поки що немає доданих товарів.</p>
+            <button id="btn-open-add" class="inline-flex items-center gap-2 h-11 px-4 rounded-xl bg-brand hover:bg-brand-dark text-white font-semibold shadow-lg shadow-brand/25 transition">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span data-i18n="admin.add">Додати товар</span>
+            </button>
           </div>
+          <div id="admin-list" class="space-y-3"></div>
+          <p id="admin-empty" class="hidden text-center text-ios-text2 dark:text-ios-darkText2 text-[14px] py-10" data-i18n="admin.empty">Поки що немає доданих товарів. Натисніть «+ Додати товар».</p>
+        </div>
+
+        <!-- All orders (admin sees every customer order) -->
+        <div class="rounded-[24px] bg-white dark:bg-ios-darkCard shadow-sm p-5 sm:p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-[18px]" data-i18n="admin.ordersTitle">Замовлення клієнтів</h3>
+            <span class="text-[13px] text-ios-text2 dark:text-ios-darkText2" id="admin-orders-count"></span>
+          </div>
+          <div id="admin-orders-list" class="space-y-3"></div>
+          <p id="admin-orders-empty" class="text-center text-ios-text2 dark:text-ios-darkText2 text-[14px] py-10" data-i18n="admin.ordersEmpty">Замовлень поки немає.</p>
         </div>
       </div>
     </section>
+
+    <!-- ============================================================ -->
+    <!-- ADD-PRODUCT MODAL SHEET (opened from admin panel) -->
+    <!-- ============================================================ -->
+    <div id="add-sheet" class="fixed inset-0 z-50 hidden">
+      <div id="add-sheet-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+      <div id="add-sheet-panel"
+        class="absolute inset-x-0 bottom-0 sm:inset-0 sm:m-auto sm:max-w-lg sm:h-fit
+               translate-y-full sm:translate-y-4 sm:scale-95 opacity-0
+               transition-all duration-300 ease-out">
+        <div class="bg-white dark:bg-ios-darkCard rounded-t-[28px] sm:rounded-[28px] sm:m-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+          <div class="sticky top-0 bg-white/85 dark:bg-ios-darkCard/85 backdrop-blur-xl z-10 flex items-center justify-between px-5 py-3 border-b border-black/5 dark:border-white/10">
+            <button id="add-sheet-cancel" class="text-brand dark:text-brand-light font-semibold text-[15px]">
+              <span data-i18n="sheet.cancel">Скасувати</span>
+            </button>
+            <h3 class="font-bold text-[16px]" data-i18n="admin.formTitle">Новий товар</h3>
+            <span class="w-16"></span>
+          </div>
+
+          <form id="admin-form" class="space-y-3 p-5" novalidate>
+            <div class="ios-field">
+              <label for="p-name" data-i18n="admin.name">Назва</label>
+              <input id="p-name" name="name" type="text" required />
+              <p class="err" data-err="p-name"></p>
+            </div>
+
+            <div class="ios-field">
+              <label for="p-desc" data-i18n="admin.desc">Опис</label>
+              <textarea id="p-desc" name="desc" rows="3" required></textarea>
+              <p class="err" data-err="p-desc"></p>
+            </div>
+
+            <div class="ios-field">
+              <label for="p-price" data-i18n="admin.price">Ціна за одиницю (₴)</label>
+              <input id="p-price" name="price" type="number" min="1" step="1" required />
+              <p class="err" data-err="p-price"></p>
+            </div>
+
+            <div>
+              <div class="text-[12px] font-medium text-ios-text2 dark:text-ios-darkText2 mb-1.5 ml-1" data-i18n="admin.avail">Доступність</div>
+              <div class="size-seg" id="p-avail">
+                <button type="button" data-avail="stock" class="active">
+                  <span data-i18n="admin.availStock">В наявності</span>
+                </button>
+                <button type="button" data-avail="order">
+                  <span data-i18n="admin.availOrder">Під замовлення</span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="text-[12px] font-medium text-ios-text2 dark:text-ios-darkText2 mb-1.5 ml-1" data-i18n="admin.photo">Фото товару</div>
+              <label for="p-photo" class="flex flex-col items-center justify-center h-40 rounded-2xl border-2 border-dashed border-black/15 dark:border-white/15 hover:border-brand dark:hover:border-brand-light cursor-pointer transition overflow-hidden relative bg-black/[0.02] dark:bg-white/[0.03]">
+                <img id="p-photo-preview" class="hidden absolute inset-0 w-full h-full object-cover" />
+                <div id="p-photo-empty" class="text-center text-ios-text2 dark:text-ios-darkText2">
+                  <i data-lucide="image-plus" class="w-6 h-6 mx-auto mb-1"></i>
+                  <div class="text-[13px] font-semibold" data-i18n="admin.photoDrop">Натисніть, щоб обрати фото</div>
+                  <div class="text-[11px] opacity-70">JPG / PNG · до 2 MB</div>
+                </div>
+              </label>
+              <input id="p-photo" name="photo" type="file" accept="image/*" class="hidden" />
+              <p class="err" data-err="p-photo"></p>
+            </div>
+
+            <button type="submit"
+              class="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-semibold transition mt-2">
+              <span data-i18n="admin.add">Додати товар</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
 
     <!-- ==================================================== -->
     <!-- PAGE 3: MARKETPLACE -->
@@ -433,7 +523,7 @@
         </a>
         <a href="https://www.instagram.com/revadariiya?igsh=MWF5ZTBmeHZpdjBtYg%3D%3D&utm_source=qr" target="_blank" rel="noopener"
           class="inline-flex items-center gap-2 px-4 h-10 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-[14px] font-semibold transition">
-          <i data-lucide="instagram" class="w-4 h-4"></i>Instagram
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>Instagram
         </a>
       </div>
     </div>
@@ -467,13 +557,48 @@
           <a href="https://www.instagram.com/revadariiya?igsh=MWF5ZTBmeHZpdjBtYg%3D%3D&utm_source=qr" target="_blank" rel="noopener"
              class="flex items-center justify-center gap-2 w-full h-12 rounded-xl text-white font-semibold transition"
              style="background:linear-gradient(135deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888);">
-            <i data-lucide="instagram" class="w-4 h-4"></i>Instagram
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>Instagram
           </a>
           <button id="sheet-cancel"
             class="w-full h-12 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-semibold transition">
             <span data-i18n="sheet.cancel">Скасувати</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- USER PROFILE VIEW SHEET (admin clicks online chip) -->
+  <!-- ============================================================ -->
+  <div id="user-sheet" class="fixed inset-0 z-50 hidden">
+    <div id="user-sheet-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+    <div id="user-sheet-panel"
+      class="absolute inset-x-0 bottom-0 sm:inset-0 sm:m-auto sm:max-w-sm sm:h-fit
+             translate-y-full sm:translate-y-4 sm:scale-95 opacity-0
+             transition-all duration-300 ease-out">
+      <div class="bg-white dark:bg-ios-darkCard rounded-t-[28px] sm:rounded-[28px] sm:m-4 p-6 shadow-2xl text-center">
+        <div class="w-10 h-1 rounded-full bg-black/15 dark:bg-white/20 mx-auto mb-4 sm:hidden"></div>
+        <div id="us-avatar" class="mx-auto w-24 h-24 rounded-full bg-brand text-white flex items-center justify-center font-extrabold text-3xl overflow-hidden shadow-lg shadow-brand/25 mb-4"></div>
+        <h3 id="us-name" class="font-bold text-[20px]"></h3>
+        <p id="us-email" class="text-[14px] text-ios-text2 dark:text-ios-darkText2 mt-0.5"></p>
+        <div id="us-role" class="hidden mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand/10 dark:bg-brand/20 text-brand dark:text-brand-light text-[12px] font-semibold">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+          <span data-i18n="auth.roleAdmin">Адміністратор</span>
+        </div>
+        <div class="mt-4 grid grid-cols-2 gap-2 text-left">
+          <div class="rounded-xl bg-black/[0.03] dark:bg-white/[0.05] p-2.5">
+            <div class="text-[11px] text-ios-text2 dark:text-ios-darkText2 uppercase tracking-wide" data-i18n="cab.orders">замовлень</div>
+            <div class="font-bold text-[16px]" id="us-orders">0</div>
+          </div>
+          <div class="rounded-xl bg-black/[0.03] dark:bg-white/[0.05] p-2.5">
+            <div class="text-[11px] text-ios-text2 dark:text-ios-darkText2 uppercase tracking-wide" data-i18n="admin.online">онлайн</div>
+            <div class="font-bold text-[16px] text-emerald-500" id="us-online">•</div>
+          </div>
+        </div>
+        <button id="user-sheet-close" class="w-full mt-5 h-11 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 font-semibold transition">
+          <span data-i18n="sheet.cancel">Закрити</span>
+        </button>
       </div>
     </div>
   </div>
