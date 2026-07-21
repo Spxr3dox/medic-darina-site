@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
   <title>MEDIC DARIYA — Premium Medical Apparel</title>
+  <link rel="icon" type="image/jpeg" href="assets/logo.jpg" />
   <meta name="description" content="MEDIC DARIYA — костюм лікаря це не медична форма, це власний медичний бренд. Преміальний медичний одяг зі США." />
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -61,9 +62,7 @@
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
       <!-- Logo -->
       <button data-nav="home" class="flex items-center gap-2 group shrink-0">
-        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-black dark:bg-white/5 border border-black/5 dark:border-white/10">
-          <span class="text-brand font-extrabold text-[15px] tracking-tight leading-none">MD</span>
-        </span>
+        <img src="assets/logo.jpg" alt="MEDIC DARIYA" class="w-8 h-8 rounded-lg object-cover" />
         <span class="font-extrabold tracking-tight text-[17px] text-brand dark:text-brand-light hidden sm:inline">MEDIC DARIYA</span>
       </button>
 
@@ -161,19 +160,14 @@
             </div>
           </div>
 
-          <!-- Hero visual: stylized MD monogram -->
+          <!-- Hero visual: real brand logo -->
           <div class="relative">
-            <div class="aspect-square max-w-md ml-auto rounded-[36px] bg-gradient-to-br from-black to-neutral-900 dark:from-neutral-900 dark:to-black relative overflow-hidden shadow-2xl shadow-black/40">
-              <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-[220px] leading-none font-serif font-black text-brand-light select-none" style="letter-spacing:-0.08em;">MD</span>
-              </div>
-              <div class="absolute bottom-0 inset-x-0 p-6 text-center">
-                <div class="text-white font-extrabold tracking-[0.3em] text-[15px]">MEDIC DARIYA</div>
-              </div>
-              <!-- glow -->
+            <div class="aspect-square max-w-md ml-auto rounded-[36px] relative overflow-hidden shadow-2xl shadow-black/40">
+              <img src="assets/logo.jpg" alt="MEDIC DARIYA logo" class="absolute inset-0 w-full h-full object-cover" />
+              <!-- Ambient glow to blend with page -->
               <div class="absolute -inset-1 pointer-events-none">
-                <div class="absolute top-6 left-6 w-24 h-24 rounded-full bg-brand/40 blur-2xl"></div>
-                <div class="absolute bottom-10 right-8 w-24 h-24 rounded-full bg-brand-light/40 blur-2xl"></div>
+                <div class="absolute top-6 left-6 w-24 h-24 rounded-full bg-brand/30 blur-2xl"></div>
+                <div class="absolute bottom-10 right-8 w-24 h-24 rounded-full bg-brand-light/30 blur-2xl"></div>
               </div>
             </div>
           </div>
@@ -451,7 +445,7 @@
         <!-- Form card -->
         <div id="auth-form-card" class="rounded-[28px] bg-white dark:bg-ios-darkCard shadow-xl shadow-black/5 p-6 sm:p-8">
           <div class="text-center mb-6">
-            <div class="mx-auto w-14 h-14 rounded-2xl bg-brand text-white flex items-center justify-center font-extrabold text-xl mb-3">MD</div>
+            <img src="assets/logo.jpg" alt="MEDIC DARIYA" class="mx-auto w-14 h-14 rounded-2xl object-cover mb-3" />
             <h2 class="text-[24px] font-bold" id="auth-heading" data-i18n="auth.title">Створіть акаунт</h2>
             <p class="text-[14px] text-ios-text2 dark:text-ios-darkText2 mt-1" id="auth-sub" data-i18n="auth.sub">Щоб перейти до магазину, зареєструйтесь</p>
           </div>
