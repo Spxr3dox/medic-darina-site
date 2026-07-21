@@ -33,7 +33,7 @@ const translations = {
     'err.name': "Введіть ім'я", 'err.email': 'Некоректна пошта',
     'err.pass': 'Мінімум 6 символів', 'err.pass2': 'Паролі не збігаються',
     'err.exists': 'Такий email вже зареєстровано', 'err.badLogin': 'Невірна пошта або пароль',
-    'err.required': "Обов'язкове поле", 'err.photo': 'Оберіть фото товару',
+    'err.required': "Обов'язкове поле", 'err.photo': 'Оберіть фото товару', 'err.sizes': 'Оберіть хоча б один розмір',
 
     'shop.title': 'Каталог', 'shop.sub': 'Свіжа колекція медичного одягу',
     'shop.buy': 'Купити', 'shop.size': 'Розмір', 'shop.qty': 'Кількість',
@@ -60,6 +60,7 @@ const translations = {
     'admin.name': 'Назва', 'admin.desc': 'Опис', 'admin.price': 'Ціна за одиницю (₴)',
     'admin.avail': 'Доступність', 'admin.availStock': 'В наявності', 'admin.availOrder': 'Під замовлення',
     'admin.photo': 'Фото товару', 'admin.photoDrop': 'Натисніть, щоб обрати фото',
+    'admin.sizes': 'Доступні розміри',
     'admin.add': 'Додати товар', 'admin.addHint': 'Додати новий товар можна прямо з каталогу',
     'admin.listTitle': 'Мої товари', 'admin.empty': 'Поки що немає доданих товарів. Кнопка «+ Додати товар» — в каталозі.',
     'admin.delete': 'Видалити', 'admin.count': 'товарів',
@@ -104,7 +105,7 @@ const translations = {
     'err.name': 'Please enter your name', 'err.email': 'Invalid email',
     'err.pass': 'At least 6 characters', 'err.pass2': 'Passwords do not match',
     'err.exists': 'This email is already registered', 'err.badLogin': 'Invalid email or password',
-    'err.required': 'This field is required', 'err.photo': 'Please choose a product photo',
+    'err.required': 'This field is required', 'err.photo': 'Please choose a product photo', 'err.sizes': 'Pick at least one size',
 
     'shop.title': 'Shop', 'shop.sub': 'Fresh medical apparel collection',
     'shop.buy': 'Buy', 'shop.size': 'Size', 'shop.qty': 'Quantity',
@@ -131,6 +132,7 @@ const translations = {
     'admin.name': 'Title', 'admin.desc': 'Description', 'admin.price': 'Price per unit (UAH)',
     'admin.avail': 'Availability', 'admin.availStock': 'In stock', 'admin.availOrder': 'On order',
     'admin.photo': 'Product photo', 'admin.photoDrop': 'Click to choose a photo',
+    'admin.sizes': 'Available sizes',
     'admin.add': 'Add product', 'admin.addHint': 'Add a new product right from the catalog',
     'admin.listTitle': 'My products', 'admin.empty': 'No products yet. Use "+ Add product" in the catalog.',
     'admin.delete': 'Delete', 'admin.count': 'items',
@@ -219,11 +221,14 @@ const defaultProducts = [
   { id: 'd4', price: 1250, sizes: ['S','M','L','XL'],   mono: 'CG', pg: 'linear-gradient(135deg,#e0e5ec,#a7b3c1)', avail: 'stock', builtin: true },
 ];
 
+const SIZE_ORDER = ['XS','S','M','L','XL','XXL','XXXL'];
+
 function allProducts() {
   const deleted = new Set(DB.deleted_builtins.get());
   const builtins = defaultProducts.filter(p => !deleted.has(p.id));
   const custom = DB.products_custom.get().map(p => ({
-    id: p.id, price: p.price, sizes: ['S','M','L','XL'],
+    id: p.id, price: p.price,
+    sizes: Array.isArray(p.sizes) && p.sizes.length ? p.sizes : ['S','M','L','XL'],
     title: p.title, desc: p.desc, photo: p.photo, avail: p.avail, builtin: false,
   }));
   return [...builtins, ...custom];
@@ -734,6 +739,15 @@ function bindAdmin() {
     });
   });
 
+  // Sizes multi-select toggles
+  document.querySelectorAll('#p-sizes .size-chip').forEach(b => {
+    b.addEventListener('click', () => {
+      b.classList.toggle('active');
+      // Clear any prior error the moment user interacts
+      setFieldError('p-sizes', null);
+    });
+  });
+
   const photoInput = document.getElementById('p-photo');
   photoInput.addEventListener('change', async () => {
     const file = photoInput.files?.[0];
@@ -759,15 +773,20 @@ function bindAdmin() {
     const desc = (fd.get('desc') || '').trim();
     const price = parseInt(fd.get('price'), 10);
 
+    const sizes = Array.from(document.querySelectorAll('#p-sizes .size-chip.active'))
+      .map(el => el.getAttribute('data-size'))
+      .sort((a, b) => SIZE_ORDER.indexOf(a) - SIZE_ORDER.indexOf(b));
+
     let ok = true;
     if (!name) { setFieldError('p-name', 'err.required'); ok = false; } else setFieldError('p-name', null);
     if (!desc) { setFieldError('p-desc', 'err.required'); ok = false; } else setFieldError('p-desc', null);
     if (!price || price < 1) { setFieldError('p-price', 'err.required'); ok = false; } else setFieldError('p-price', null);
     if (!state.adminPhotoData) { setFieldError('p-photo', 'err.photo'); ok = false; } else setFieldError('p-photo', null);
+    if (sizes.length === 0) { setFieldError('p-sizes', 'err.sizes'); ok = false; } else setFieldError('p-sizes', null);
     if (!ok) return;
 
     const product = {
-      id: 'c' + Date.now(), title: name, desc, price,
+      id: 'c' + Date.now(), title: name, desc, price, sizes,
       avail: state.adminAvail, photo: state.adminPhotoData,
       createdAt: new Date().toISOString(),
     };
@@ -779,6 +798,10 @@ function bindAdmin() {
     state.adminPhotoData = null;
     state.adminAvail = 'stock';
     document.querySelectorAll('#p-avail button').forEach((b,i) => b.classList.toggle('active', i === 0));
+    document.querySelectorAll('#p-sizes .size-chip').forEach(el => {
+      const s = el.getAttribute('data-size');
+      el.classList.toggle('active', s === 'S' || s === 'M' || s === 'L');
+    });
     document.getElementById('p-photo-preview').classList.add('hidden');
     document.getElementById('p-photo-empty').classList.remove('hidden');
 
