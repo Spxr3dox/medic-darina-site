@@ -629,6 +629,21 @@
             </div>
 
             <div>
+              <div class="text-[12px] font-medium text-ios-text2 dark:text-ios-darkText2 mb-1.5 ml-1" data-i18n="admin.brand">Бренд</div>
+              <div id="p-brand" class="flex flex-wrap gap-2">
+                <button type="button" data-brand=""              class="size-chip active" data-i18n="brand.none">Без бренду</button>
+                <button type="button" data-brand="Cherokee"      class="size-chip">Cherokee</button>
+                <button type="button" data-brand="Figs"          class="size-chip">Figs</button>
+                <button type="button" data-brand="Skechers"      class="size-chip">Skechers</button>
+                <button type="button" data-brand="Grey's Anatomy" class="size-chip">Grey's Anatomy</button>
+                <button type="button" data-brand="Jaanuu"        class="size-chip">Jaanuu</button>
+                <button type="button" data-brand="Medelita"      class="size-chip">Medelita</button>
+                <button type="button" data-brand="Healing Hands" class="size-chip">Healing Hands</button>
+                <button type="button" data-brand="Dickies"       class="size-chip">Dickies</button>
+              </div>
+            </div>
+
+            <div>
               <div class="text-[12px] font-medium text-ios-text2 dark:text-ios-darkText2 mb-1.5 ml-1" data-i18n="admin.gender">Стать</div>
               <div id="p-gender" class="size-seg">
                 <button type="button" data-gender="unisex" class="active" data-i18n="gender.unisex">Унісекс</button>
@@ -782,7 +797,10 @@
         </div>
 
         <!-- Category chips -->
-        <div id="category-chips" class="flex flex-wrap gap-2 mb-6"></div>
+        <div id="category-chips" class="flex flex-wrap gap-2 mb-3"></div>
+
+        <!-- Brand chips -->
+        <div id="brand-chips" class="flex flex-wrap gap-2 mb-6"></div>
 
         <div id="product-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
         <p id="product-empty" class="hidden text-center text-ios-text2 dark:text-ios-darkText2 text-[14px] py-16" data-i18n="shop.filterEmpty">Немає товарів за цим фільтром.</p>

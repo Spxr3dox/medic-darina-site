@@ -72,6 +72,7 @@ const translations = {
     'cat.all': 'Всі категорії', 'cat.scrubs': 'Костюми', 'cat.gowns': 'Медичні халати',
     'cat.tops': 'Топи', 'cat.pants': 'Штани', 'cat.shoes': 'Взуття', 'cat.acc': 'Аксесуари', 'cat.other': 'Інше',
     'gender.female': 'Жіночі', 'gender.male': 'Чоловічі', 'gender.unisex': 'Унісекс',
+    'brand.all': 'Всі бренди', 'brand.none': 'Без бренду',
 
     'cart.label': 'Кошик', 'cart.items': 'товарів', 'cart.currency': '₴',
     'cart.title': 'Ваша корзина', 'cart.total': 'Разом', 'cart.checkout': 'Оформити замовлення',
@@ -101,7 +102,7 @@ const translations = {
     'admin.sizesTop': 'Розмір топ', 'admin.sizesBottom': 'Розмір штани', 'admin.pantsLen': 'Довжина штанів',
     'admin.sizesHint': 'Якщо товар без штанів — залиш блок штанів і довжину порожніми.',
     'admin.oldPrice': 'Стара ціна для знижки (₴) — необовʼязково',
-    'admin.sku': 'Код товару', 'admin.color': 'Колір', 'admin.category': 'Категорія', 'admin.gender': 'Стать',
+    'admin.sku': 'Код товару', 'admin.color': 'Колір', 'admin.category': 'Категорія', 'admin.gender': 'Стать', 'admin.brand': 'Бренд',
     'admin.add': 'Додати товар', 'admin.addHint': 'Додати новий товар можна прямо з каталогу',
     'admin.listTitle': 'Мої товари', 'admin.empty': 'Поки що немає доданих товарів. Кнопка «+ Додати товар» — в каталозі.',
     'admin.delete': 'Видалити', 'admin.count': 'товарів',
@@ -185,6 +186,7 @@ const translations = {
     'cat.all': 'All categories', 'cat.scrubs': 'Scrubs', 'cat.gowns': 'Medical gowns',
     'cat.tops': 'Tops', 'cat.pants': 'Pants', 'cat.shoes': 'Shoes', 'cat.acc': 'Accessories', 'cat.other': 'Other',
     'gender.female': "Women's", 'gender.male': "Men's", 'gender.unisex': 'Unisex',
+    'brand.all': 'All brands', 'brand.none': 'No brand',
 
     'cart.label': 'Cart', 'cart.items': 'items', 'cart.currency': 'UAH',
     'cart.title': 'Your cart', 'cart.total': 'Total', 'cart.checkout': 'Checkout',
@@ -214,7 +216,7 @@ const translations = {
     'admin.sizesTop': 'Top size', 'admin.sizesBottom': 'Pants size', 'admin.pantsLen': 'Pants length',
     'admin.sizesHint': 'If the item has no pants — leave the pants and length blocks empty.',
     'admin.oldPrice': 'Original price for a discount (UAH) — optional',
-    'admin.sku': 'Product code', 'admin.color': 'Colour', 'admin.category': 'Category', 'admin.gender': 'Gender',
+    'admin.sku': 'Product code', 'admin.color': 'Colour', 'admin.category': 'Category', 'admin.gender': 'Gender', 'admin.brand': 'Brand',
     'admin.add': 'Add product', 'admin.addHint': 'Add a new product right from the catalog',
     'admin.listTitle': 'My products', 'admin.empty': 'No products yet. Use "+ Add product" in the catalog.',
     'admin.delete': 'Delete', 'admin.count': 'items',
@@ -293,9 +295,11 @@ const state = {
   adminAvail: 'stock',
   adminCategory: 'scrubs',
   adminGender: 'unisex',
+  adminBrand: '',
   shopAvail: 'all',      // 'all' | 'stock' | 'order'
   shopCat: 'all',        // 'all' | category id
   shopGender: 'all',     // 'all' | 'female' | 'male' | 'unisex'
+  shopBrand: 'all',      // 'all' | brand name
   newsPhotoData: null,
   sessionId: sessionStorage.getItem('md_sid') || (() => {
     const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -318,7 +322,7 @@ function allProducts() {
   const builtins = defaultProducts.filter(p => !deleted.has(p.id));
   const custom = DB.products_custom.get().map(p => ({
     id: p.id, price: p.price, oldPrice: p.oldPrice ?? null,
-    sku: p.sku || '', color: p.color || '', category: p.category || 'scrubs', gender: p.gender || 'unisex',
+    sku: p.sku || '', color: p.color || '', category: p.category || 'scrubs', gender: p.gender || 'unisex', brand: p.brand || '',
     // Legacy fallback: if a product was saved before we split top/bottom,
     // reuse its old .sizes as top sizes.
     sizesTop: Array.isArray(p.sizesTop) ? p.sizesTop : (Array.isArray(p.sizes) ? p.sizes : []),
@@ -711,6 +715,43 @@ function renderCategoryChips() {
   });
 }
 
+function renderBrandChips() {
+  const wrap = document.getElementById('brand-chips');
+  if (!wrap) return;
+  // Brands present in the current gender/avail/category slice
+  const pool = allProducts().filter(p => {
+    if (state.shopAvail !== 'all' && p.avail !== state.shopAvail) return false;
+    if (state.shopCat !== 'all' && (p.category || 'scrubs') !== state.shopCat) return false;
+    if (state.shopGender !== 'all' && (p.gender || 'unisex') !== state.shopGender) return false;
+    return true;
+  });
+  const counts = {};
+  for (const p of pool) {
+    const b = (p.brand || '').trim();
+    if (!b) continue;
+    counts[b] = (counts[b] || 0) + 1;
+  }
+  const brands = Object.keys(counts).sort();
+  if (brands.length === 0) {
+    wrap.innerHTML = '';
+    // Also clear any stale brand selection so filter can't get "stuck".
+    if (state.shopBrand !== 'all') state.shopBrand = 'all';
+    return;
+  }
+  const chips = [['all', t('brand.all'), pool.length], ...brands.map(b => [b, b, counts[b]])];
+  wrap.innerHTML = chips.map(([val, label, count]) => `
+    <button data-brand-filter="${escapeHTML(val)}"
+      class="size-chip ${state.shopBrand === val ? 'active' : ''}">
+      ${escapeHTML(label)}<span class="ml-1 opacity-70 text-[11px]">${count}</span>
+    </button>`).join('');
+  wrap.querySelectorAll('[data-brand-filter]').forEach(b => {
+    b.addEventListener('click', () => {
+      state.shopBrand = b.getAttribute('data-brand-filter');
+      renderShop();
+    });
+  });
+}
+
 function renderShop() {
   const grid = document.getElementById('product-grid');
   if (!grid) return;
@@ -733,11 +774,13 @@ function renderShop() {
   document.querySelectorAll('#gender-seg [data-gender-filter]').forEach(b => {
     b.classList.toggle('active', b.getAttribute('data-gender-filter') === state.shopGender);
   });
+  renderBrandChips();
 
   const filtered = allProducts().filter(p => {
     if (state.shopAvail !== 'all' && p.avail !== state.shopAvail) return false;
     if (state.shopCat !== 'all' && (p.category || 'scrubs') !== state.shopCat) return false;
     if (state.shopGender !== 'all' && (p.gender || 'unisex') !== state.shopGender) return false;
+    if (state.shopBrand !== 'all' && (p.brand || '') !== state.shopBrand) return false;
     return true;
   });
 
@@ -773,8 +816,9 @@ function renderShop() {
           <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${availClass}">${availLabel}</span>
         </div>
         <h3 class="font-bold text-[16px] leading-tight">${escapeHTML(title)}</h3>
-        ${(p.color || p.sku) ? `
+        ${(p.color || p.sku || p.brand) ? `
           <div class="mt-1 flex items-center gap-2 flex-wrap text-[11.5px] text-ios-text2 dark:text-ios-darkText2">
+            ${p.brand ? `<span class="font-semibold text-brand dark:text-brand-light">${escapeHTML(p.brand)}</span>` : ''}
             ${p.color ? `<span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-brand"></span>${escapeHTML(p.color)}</span>` : ''}
             ${p.sku ? `<span class="font-mono opacity-80">SKU ${escapeHTML(p.sku)}</span>` : ''}
           </div>` : ''}
@@ -1057,6 +1101,15 @@ function bindAdmin() {
     });
   });
 
+  // Brand picker (single-select chips)
+  document.querySelectorAll('#p-brand button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#p-brand button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      state.adminBrand = b.getAttribute('data-brand') || '';
+    });
+  });
+
   // Sizes multi-select toggles (top + bottom)
   document.querySelectorAll('#p-sizes-top .size-chip, #p-sizes-bottom .size-chip, #p-pants-len .size-chip').forEach(b => {
     b.addEventListener('click', () => {
@@ -1111,6 +1164,7 @@ function bindAdmin() {
       color: (fd.get('color') || '').trim(),
       category: state.adminCategory,
       gender: state.adminGender,
+      brand: state.adminBrand,
       sizesTop, sizesBottom, pantsLengths,
       avail: state.adminAvail, photo: state.adminPhotoData,
       createdAt: new Date().toISOString(),
@@ -1138,6 +1192,10 @@ function bindAdmin() {
       b.classList.toggle('active', b.getAttribute('data-gender') === 'unisex');
     });
     state.adminGender = 'unisex';
+    document.querySelectorAll('#p-brand button').forEach((b) => {
+      b.classList.toggle('active', !b.getAttribute('data-brand'));
+    });
+    state.adminBrand = '';
     document.getElementById('p-photo-preview').classList.add('hidden');
     document.getElementById('p-photo-empty').classList.remove('hidden');
 
