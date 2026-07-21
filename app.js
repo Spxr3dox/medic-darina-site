@@ -715,10 +715,13 @@ function renderCategoryChips() {
   });
 }
 
+// Full list of brands we sell — kept in sync with the admin form chips.
+const KNOWN_BRANDS = ['Cherokee','Figs','Skechers',"Grey's Anatomy",'Jaanuu','Medelita','Healing Hands','Dickies'];
+
 function renderBrandChips() {
   const wrap = document.getElementById('brand-chips');
   if (!wrap) return;
-  // Brands present in the current gender/avail/category slice
+  // Products in the current gender / avail / category slice (before brand filter).
   const pool = allProducts().filter(p => {
     if (state.shopAvail !== 'all' && p.avail !== state.shopAvail) return false;
     if (state.shopCat !== 'all' && (p.category || 'scrubs') !== state.shopCat) return false;
@@ -731,17 +734,23 @@ function renderBrandChips() {
     if (!b) continue;
     counts[b] = (counts[b] || 0) + 1;
   }
-  const brands = Object.keys(counts).sort();
+  // On "Під замовлення" always list every known brand as a promise of
+  // what can be ordered, even if there's no product yet.
+  const brandsWithProducts = Object.keys(counts).sort();
+  const brands = state.shopAvail === 'order'
+    ? [...new Set([...KNOWN_BRANDS, ...brandsWithProducts])]
+    : brandsWithProducts;
+
   if (brands.length === 0) {
     wrap.innerHTML = '';
-    // Also clear any stale brand selection so filter can't get "stuck".
     if (state.shopBrand !== 'all') state.shopBrand = 'all';
     return;
   }
-  const chips = [['all', t('brand.all'), pool.length], ...brands.map(b => [b, b, counts[b]])];
+
+  const chips = [['all', t('brand.all'), pool.length], ...brands.map(b => [b, b, counts[b] || 0])];
   wrap.innerHTML = chips.map(([val, label, count]) => `
     <button data-brand-filter="${escapeHTML(val)}"
-      class="size-chip ${state.shopBrand === val ? 'active' : ''}">
+      class="size-chip ${state.shopBrand === val ? 'active' : ''} ${count === 0 ? 'opacity-60' : ''}">
       ${escapeHTML(label)}<span class="ml-1 opacity-70 text-[11px]">${count}</span>
     </button>`).join('');
   wrap.querySelectorAll('[data-brand-filter]').forEach(b => {
