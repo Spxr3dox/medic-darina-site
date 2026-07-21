@@ -259,7 +259,7 @@ const defaultProducts = [
   { id: 'd4', price: 1250, sizes: ['S','M','L','XL'],   mono: 'CG', pg: 'linear-gradient(135deg,#e0e5ec,#a7b3c1)', avail: 'stock', builtin: true },
 ];
 
-const SIZE_ORDER = ['XS','S','M','L','XL','XXL','XXXL'];
+const SIZE_ORDER = ['XXS','XS','S','M','L','XL','2XL','3XL','4XL','5XL','6XL'];
 
 function allProducts() {
   const deleted = new Set(DB.deleted_builtins.get());
