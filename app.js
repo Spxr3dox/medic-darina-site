@@ -63,6 +63,7 @@ const translations = {
     'admin.add': 'Додати товар', 'admin.addHint': 'Додати новий товар можна прямо з каталогу',
     'admin.listTitle': 'Мої товари', 'admin.empty': 'Поки що немає доданих товарів. Кнопка «+ Додати товар» — в каталозі.',
     'admin.delete': 'Видалити', 'admin.count': 'товарів',
+    'admin.templateBadge': 'ШАБЛОН', 'admin.confirmDel': 'Видалити цей товар з магазину?',
     'admin.ordersTitle': 'Замовлення клієнтів', 'admin.ordersEmpty': 'Замовлень поки немає.',
     'admin.onlineTitle': 'Онлайн зараз', 'admin.onlineEmpty': 'Ніхто не онлайн.',
     'admin.onlineHint': 'Дані з цього браузера', 'admin.online': 'онлайн',
@@ -133,6 +134,7 @@ const translations = {
     'admin.add': 'Add product', 'admin.addHint': 'Add a new product right from the catalog',
     'admin.listTitle': 'My products', 'admin.empty': 'No products yet. Use "+ Add product" in the catalog.',
     'admin.delete': 'Delete', 'admin.count': 'items',
+    'admin.templateBadge': 'TEMPLATE', 'admin.confirmDel': 'Remove this product from the shop?',
     'admin.ordersTitle': 'Customer orders', 'admin.ordersEmpty': 'No orders yet.',
     'admin.onlineTitle': 'Online now', 'admin.onlineEmpty': 'Nobody online.',
     'admin.onlineHint': 'From this browser', 'admin.online': 'online',
@@ -154,6 +156,7 @@ const DB = {
   _write(key, v) { localStorage.setItem(key, JSON.stringify(v)); },
   accounts:        { get: () => DB._read('md_accounts', []),        set: (v) => DB._write('md_accounts', v) },
   products_custom: { get: () => DB._read('md_products_custom', []), set: (v) => DB._write('md_products_custom', v) },
+  deleted_builtins:{ get: () => DB._read('md_deleted_builtins', []), set: (v) => DB._write('md_deleted_builtins', v) },
   orders:          { get: () => DB._read('md_orders', []),          set: (v) => DB._write('md_orders', v) },
   session:         { get: () => DB._read('md_session', null),       set: (v) => DB._write('md_session', v) },
   online:          { get: () => DB._read('md_online', {}),          set: (v) => DB._write('md_online', v) },
@@ -217,11 +220,13 @@ const defaultProducts = [
 ];
 
 function allProducts() {
+  const deleted = new Set(DB.deleted_builtins.get());
+  const builtins = defaultProducts.filter(p => !deleted.has(p.id));
   const custom = DB.products_custom.get().map(p => ({
     id: p.id, price: p.price, sizes: ['S','M','L','XL'],
     title: p.title, desc: p.desc, photo: p.photo, avail: p.avail, builtin: false,
   }));
-  return [...defaultProducts, ...custom];
+  return [...builtins, ...custom];
 }
 
 function productTitle(p) {
@@ -790,7 +795,7 @@ function renderAdminList() {
   const count = document.getElementById('admin-count');
   if (!list) return;
 
-  const items = DB.products_custom.get();
+  const items = allProducts();       // includes visible built-ins + custom
   count.textContent = `${items.length} ${t('admin.count')}`;
   empty.classList.toggle('hidden', items.length > 0);
 
@@ -799,18 +804,26 @@ function renderAdminList() {
     const availClass = p.avail === 'order'
       ? 'bg-amber-500/15 text-amber-600 dark:text-amber-300'
       : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300';
+    const title = productTitle(p);
+    const desc = p.desc ? escapeHTML(p.desc) : '';
+    const image = p.builtin
+      ? `<div class="w-16 h-16 rounded-xl shrink-0 flex items-center justify-center font-black text-white text-lg" style="background:${p.pg}">${p.mono}</div>`
+      : `<img src="${p.photo}" class="w-16 h-16 rounded-xl object-cover shrink-0" alt="" />`;
+    const builtinBadge = p.builtin
+      ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-brand/10 text-brand dark:text-brand-light">${t('admin.templateBadge')}</span>` : '';
     return `
       <div class="flex items-center gap-3 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] p-3">
-        <img src="${p.photo}" class="w-16 h-16 rounded-xl object-cover shrink-0" alt="" />
+        ${image}
         <div class="min-w-0 flex-1">
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${availClass}">${availLabel}</span>
+            ${builtinBadge}
             <span class="text-brand dark:text-brand-light font-bold text-[14px]">${p.price} ${t('cart.currency')}</span>
           </div>
-          <div class="font-semibold truncate">${escapeHTML(p.title)}</div>
-          <div class="text-[12.5px] text-ios-text2 dark:text-ios-darkText2 line-clamp-1">${escapeHTML(p.desc)}</div>
+          <div class="font-semibold truncate">${escapeHTML(title)}</div>
+          <div class="text-[12.5px] text-ios-text2 dark:text-ios-darkText2 line-clamp-1">${desc}</div>
         </div>
-        <button data-del="${p.id}"
+        <button data-del="${p.id}" data-builtin="${p.builtin ? '1' : '0'}"
           class="shrink-0 w-9 h-9 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center transition"
           aria-label="Delete">
           <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -821,8 +834,14 @@ function renderAdminList() {
   list.querySelectorAll('[data-del]').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-del');
-      const next = DB.products_custom.get().filter(p => p.id !== id);
-      DB.products_custom.set(next);
+      const isBuiltin = btn.getAttribute('data-builtin') === '1';
+      if (!confirm(t('admin.confirmDel'))) return;
+      if (isBuiltin) {
+        const dl = DB.deleted_builtins.get();
+        if (!dl.includes(id)) { dl.push(id); DB.deleted_builtins.set(dl); }
+      } else {
+        DB.products_custom.set(DB.products_custom.get().filter(p => p.id !== id));
+      }
       toast(t('toast.productRemoved'));
       renderAdminList();
       renderShop();
