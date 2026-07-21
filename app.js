@@ -57,6 +57,8 @@ const translations = {
     'shop.title': 'Каталог', 'shop.sub': 'Свіжа колекція медичного одягу',
     'shop.buy': 'Купити', 'shop.size': 'Розмір', 'shop.qty': 'Кількість',
     'shop.stock': 'В наявності', 'shop.order': 'Під замовлення',
+    'shop.sizeTop': 'Розмір топ', 'shop.sizeBottom': 'Розмір штани', 'shop.pantsLen': 'Довжина',
+    'shop.old': 'Стара ціна',
 
     'cart.label': 'Кошик', 'cart.items': 'товарів', 'cart.currency': '₴',
 
@@ -80,6 +82,9 @@ const translations = {
     'admin.avail': 'Доступність', 'admin.availStock': 'В наявності', 'admin.availOrder': 'Під замовлення',
     'admin.photo': 'Фото товару', 'admin.photoDrop': 'Натисніть, щоб обрати фото',
     'admin.sizes': 'Доступні розміри',
+    'admin.sizesTop': 'Розмір топ', 'admin.sizesBottom': 'Розмір штани', 'admin.pantsLen': 'Довжина штанів',
+    'admin.sizesHint': 'Якщо товар без штанів — залиш блок штанів і довжину порожніми.',
+    'admin.oldPrice': 'Стара ціна для знижки (₴) — необовʼязково',
     'admin.add': 'Додати товар', 'admin.addHint': 'Додати новий товар можна прямо з каталогу',
     'admin.listTitle': 'Мої товари', 'admin.empty': 'Поки що немає доданих товарів. Кнопка «+ Додати товар» — в каталозі.',
     'admin.delete': 'Видалити', 'admin.count': 'товарів',
@@ -148,6 +153,8 @@ const translations = {
     'shop.title': 'Shop', 'shop.sub': 'Fresh medical apparel collection',
     'shop.buy': 'Buy', 'shop.size': 'Size', 'shop.qty': 'Quantity',
     'shop.stock': 'In stock', 'shop.order': 'On order',
+    'shop.sizeTop': 'Top size', 'shop.sizeBottom': 'Pants size', 'shop.pantsLen': 'Length',
+    'shop.old': 'Old price',
 
     'cart.label': 'Cart', 'cart.items': 'items', 'cart.currency': 'UAH',
 
@@ -171,6 +178,9 @@ const translations = {
     'admin.avail': 'Availability', 'admin.availStock': 'In stock', 'admin.availOrder': 'On order',
     'admin.photo': 'Product photo', 'admin.photoDrop': 'Click to choose a photo',
     'admin.sizes': 'Available sizes',
+    'admin.sizesTop': 'Top size', 'admin.sizesBottom': 'Pants size', 'admin.pantsLen': 'Pants length',
+    'admin.sizesHint': 'If the item has no pants — leave the pants and length blocks empty.',
+    'admin.oldPrice': 'Original price for a discount (UAH) — optional',
     'admin.add': 'Add product', 'admin.addHint': 'Add a new product right from the catalog',
     'admin.listTitle': 'My products', 'admin.empty': 'No products yet. Use "+ Add product" in the catalog.',
     'admin.delete': 'Delete', 'admin.count': 'items',
@@ -265,8 +275,12 @@ function allProducts() {
   const deleted = new Set(DB.deleted_builtins.get());
   const builtins = defaultProducts.filter(p => !deleted.has(p.id));
   const custom = DB.products_custom.get().map(p => ({
-    id: p.id, price: p.price,
-    sizes: Array.isArray(p.sizes) && p.sizes.length ? p.sizes : ['S','M','L','XL'],
+    id: p.id, price: p.price, oldPrice: p.oldPrice ?? null,
+    // Legacy fallback: if a product was saved before we split top/bottom,
+    // reuse its old .sizes as top sizes.
+    sizesTop: Array.isArray(p.sizesTop) ? p.sizesTop : (Array.isArray(p.sizes) ? p.sizes : []),
+    sizesBottom: Array.isArray(p.sizesBottom) ? p.sizesBottom : [],
+    pantsLengths: Array.isArray(p.pantsLengths) ? p.pantsLengths : [],
     title: p.title, desc: p.desc, photo: p.photo, avail: p.avail, builtin: false,
   }));
   return [...builtins, ...custom];
@@ -598,6 +612,14 @@ function renderShop() {
   const grid = document.getElementById('product-grid');
   if (!grid) return;
 
+  const segBlock = (label, items, group) => items.length ? `
+    <div class="mt-3">
+      <div class="text-[12px] text-ios-text2 dark:text-ios-darkText2 mb-1">${label}</div>
+      <div class="size-seg" data-seg="${group}">
+        ${items.map((s,i) => `<button data-val="${escapeHTML(s)}" class="${i===0?'active':''}">${escapeHTML(s)}</button>`).join('')}
+      </div>
+    </div>` : '';
+
   grid.innerHTML = allProducts().map(p => {
     const title = productTitle(p);
     const desc = p.desc ? `<p class="text-[12.5px] text-ios-text2 dark:text-ios-darkText2 mt-1 line-clamp-2">${escapeHTML(p.desc)}</p>` : '';
@@ -609,6 +631,16 @@ function renderShop() {
       ? `<div class="prod-img" data-mono="${p.mono}" style="--pg:${p.pg}"></div>`
       : `<div class="prod-img" style="background:#000"><img src="${p.photo}" alt="" class="absolute inset-0 w-full h-full object-cover" /></div>`;
 
+    let segments;
+    if (p.builtin) {
+      segments = segBlock(t('shop.size'), p.sizes, 'size');
+    } else {
+      segments = ''
+        + segBlock(t('shop.sizeTop'),    p.sizesTop,     'top')
+        + segBlock(t('shop.sizeBottom'), p.sizesBottom,  'bottom')
+        + segBlock(t('shop.pantsLen'),   p.pantsLengths, 'len');
+    }
+
     return `
     <article class="rounded-ios bg-white dark:bg-ios-darkCard p-3 shadow-sm flex flex-col" data-product="${p.id}">
       ${image}
@@ -618,13 +650,12 @@ function renderShop() {
         </div>
         <h3 class="font-bold text-[16px] leading-tight">${escapeHTML(title)}</h3>
         ${desc}
-        <div class="mt-1 text-brand dark:text-brand-light font-extrabold text-[17px]">${p.price} <span class="text-[13px] font-semibold opacity-80">${t('cart.currency')}</span></div>
-        <div class="mt-3">
-          <div class="text-[12px] text-ios-text2 dark:text-ios-darkText2 mb-1">${t('shop.size')}</div>
-          <div class="size-seg" data-size-seg>
-            ${p.sizes.map((s,i) => `<button data-size="${s}" class="${i===0?'active':''}">${s}</button>`).join('')}
-          </div>
+        <div class="mt-1 flex items-baseline gap-2 flex-wrap">
+          <span class="text-brand dark:text-brand-light font-extrabold text-[17px]">${p.price} <span class="text-[13px] font-semibold opacity-80">${t('cart.currency')}</span></span>
+          ${p.oldPrice ? `<span class="text-[13px] text-ios-text2 dark:text-ios-darkText2 line-through">${p.oldPrice} ${t('cart.currency')}</span>
+                          <span class="text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-red-500/15 text-red-500">−${Math.round((1 - p.price/p.oldPrice)*100)}%</span>` : ''}
         </div>
+        ${segments}
         <div class="mt-3 flex items-center justify-between gap-2">
           <div>
             <div class="text-[12px] text-ios-text2 dark:text-ios-darkText2 mb-1">${t('shop.qty')}</div>
@@ -646,10 +677,12 @@ function renderShop() {
   grid.querySelectorAll('[data-product]').forEach(card => {
     const id = card.getAttribute('data-product');
 
-    card.querySelectorAll('[data-size-seg] button').forEach(b => {
-      b.addEventListener('click', () => {
-        card.querySelectorAll('[data-size-seg] button').forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
+    card.querySelectorAll('[data-seg]').forEach(seg => {
+      seg.querySelectorAll('button').forEach(b => {
+        b.addEventListener('click', () => {
+          seg.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+          b.classList.add('active');
+        });
       });
     });
 
@@ -664,9 +697,18 @@ function renderShop() {
     });
 
     card.querySelector('[data-buy]').addEventListener('click', () => {
-      const size = card.querySelector('[data-size-seg] button.active')?.getAttribute('data-size') || 'M';
+      const pick = (group) => card.querySelector(`[data-seg="${group}"] button.active`)?.getAttribute('data-val') || null;
+      const parts = [];
+      const size = pick('size');
+      const top = pick('top');
+      const bottom = pick('bottom');
+      const len = pick('len');
+      if (size)   parts.push(size);
+      if (top)    parts.push(`${t('shop.sizeTop')}: ${top}`);
+      if (bottom) parts.push(`${t('shop.sizeBottom')}: ${bottom}${len ? ' · ' + len : ''}`);
+      const label = parts.join(' · ') || '—';
       const qty = +qtyEl.textContent;
-      buyNow(id, size, qty);
+      buyNow(id, label, qty);
     });
   });
 
@@ -777,11 +819,10 @@ function bindAdmin() {
     });
   });
 
-  // Sizes multi-select toggles
-  document.querySelectorAll('#p-sizes .size-chip').forEach(b => {
+  // Sizes multi-select toggles (top + bottom)
+  document.querySelectorAll('#p-sizes-top .size-chip, #p-sizes-bottom .size-chip, #p-pants-len .size-chip').forEach(b => {
     b.addEventListener('click', () => {
       b.classList.toggle('active');
-      // Clear any prior error the moment user interacts
       setFieldError('p-sizes', null);
     });
   });
@@ -811,20 +852,28 @@ function bindAdmin() {
     const desc = (fd.get('desc') || '').trim();
     const price = parseInt(fd.get('price'), 10);
 
-    const sizes = Array.from(document.querySelectorAll('#p-sizes .size-chip.active'))
+    const pickSized = (sel) => Array.from(document.querySelectorAll(sel + ' .size-chip.active'))
       .map(el => el.getAttribute('data-size'))
       .sort((a, b) => SIZE_ORDER.indexOf(a) - SIZE_ORDER.indexOf(b));
+    const sizesTop = pickSized('#p-sizes-top');
+    const sizesBottom = pickSized('#p-sizes-bottom');
+    const pantsLengths = Array.from(document.querySelectorAll('#p-pants-len .size-chip.active'))
+      .map(el => el.getAttribute('data-len'));
 
     let ok = true;
     if (!name) { setFieldError('p-name', 'err.required'); ok = false; } else setFieldError('p-name', null);
     if (!desc) { setFieldError('p-desc', 'err.required'); ok = false; } else setFieldError('p-desc', null);
     if (!price || price < 1) { setFieldError('p-price', 'err.required'); ok = false; } else setFieldError('p-price', null);
     if (!state.adminPhotoData) { setFieldError('p-photo', 'err.photo'); ok = false; } else setFieldError('p-photo', null);
-    if (sizes.length === 0) { setFieldError('p-sizes', 'err.sizes'); ok = false; } else setFieldError('p-sizes', null);
+    if (sizesTop.length === 0 && sizesBottom.length === 0) { setFieldError('p-sizes', 'err.sizes'); ok = false; } else setFieldError('p-sizes', null);
     if (!ok) return;
 
+    const rawOld = parseInt(fd.get('oldPrice'), 10);
+    const oldPrice = (Number.isFinite(rawOld) && rawOld > price) ? rawOld : null;
+
     const product = {
-      id: 'c' + Date.now(), title: name, desc, price, sizes,
+      id: 'c' + Date.now(), title: name, desc, price, oldPrice,
+      sizesTop, sizesBottom, pantsLengths,
       avail: state.adminAvail, photo: state.adminPhotoData,
       createdAt: new Date().toISOString(),
     };
@@ -836,9 +885,12 @@ function bindAdmin() {
     state.adminPhotoData = null;
     state.adminAvail = 'stock';
     document.querySelectorAll('#p-avail button').forEach((b,i) => b.classList.toggle('active', i === 0));
-    document.querySelectorAll('#p-sizes .size-chip').forEach(el => {
+    document.querySelectorAll('#p-sizes-top .size-chip, #p-sizes-bottom .size-chip').forEach(el => {
       const s = el.getAttribute('data-size');
       el.classList.toggle('active', s === 'S' || s === 'M' || s === 'L');
+    });
+    document.querySelectorAll('#p-pants-len .size-chip').forEach(el => {
+      el.classList.toggle('active', el.getAttribute('data-len') === 'Regular');
     });
     document.getElementById('p-photo-preview').classList.add('hidden');
     document.getElementById('p-photo-empty').classList.remove('hidden');
