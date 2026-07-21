@@ -54,6 +54,25 @@ body { font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter'
 }
 .ios-field.invalid input { border-color: #ff3b30; background: rgba(255,59,48,0.05); }
 
+/* Show/hide password eye button */
+.ios-field.has-eye input { padding-right: 48px; }
+.ios-field .pw-eye {
+  position: absolute;
+  top: 12px;
+  right: 8px;
+  width: 32px; height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: rgba(60,60,67,0.6);
+  transition: background .15s, color .15s;
+}
+.dark .ios-field .pw-eye { color: rgba(235,235,245,0.55); }
+.ios-field .pw-eye:hover { background: rgba(0,122,140,0.10); color: #007A8C; }
+.ios-field .pw-eye svg { width: 18px; height: 18px; }
+.ios-field .pw-eye .hidden { display: none; }
+
 /* Segmented control for sizes */
 .size-seg {
   display: inline-grid;

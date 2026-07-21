@@ -354,7 +354,7 @@
             </div>
             <h3 class="text-[19px] font-bold mb-1" data-i18n="feat2.title">Оригінал зі США</h3>
             <p class="text-[15px] text-ios-text2 dark:text-ios-darkText2" data-i18n="feat2.desc">
-              Cherokee, Grey's Anatomy, Figs, Dickies, Toffeln — прямі поставки, без підробок.
+              Cherokee, Grey's Anatomy, Figs, Dickies — прямі поставки, без підробок.
             </p>
           </div>
           <div class="rounded-ios bg-white dark:bg-ios-darkCard p-6 shadow-sm">
@@ -472,14 +472,22 @@
               <input id="f-email" name="email" type="email" autocomplete="email" required />
               <p class="err" data-err="email"></p>
             </div>
-            <div class="ios-field">
+            <div class="ios-field has-eye">
               <label for="f-pass" data-i18n="auth.pass">Пароль</label>
               <input id="f-pass" name="password" type="password" autocomplete="current-password" required />
+              <button type="button" class="pw-eye" data-toggle-pw="f-pass" aria-label="Show password">
+                <svg class="eye-on"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-off hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.77 19.77 0 0 1 4.06-4.94"/><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.86 19.86 0 0 1-2.62 3.53"/><path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
               <p class="err" data-err="password"></p>
             </div>
-            <div class="ios-field" data-only="signup">
+            <div class="ios-field has-eye" data-only="signup">
               <label for="f-pass2" data-i18n="auth.pass2">Підтвердіть пароль</label>
               <input id="f-pass2" name="password2" type="password" autocomplete="new-password" />
+              <button type="button" class="pw-eye" data-toggle-pw="f-pass2" aria-label="Show password">
+                <svg class="eye-on"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-off hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.77 19.77 0 0 1 4.06-4.94"/><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.86 19.86 0 0 1-2.62 3.53"/><path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
               <p class="err" data-err="password2"></p>
             </div>
 

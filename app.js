@@ -18,7 +18,7 @@ const translations = {
     'feat1.title': 'Досвід лікаря',
     'feat1.desc': 'Дарія — анестезіолог-реаніматолог. Кожен костюм тестується на реальному робочому дні.',
     'feat2.title': 'Оригінал зі США',
-    'feat2.desc': "Cherokee, Grey's Anatomy, Figs, Dickies, Toffeln — прямі поставки, без підробок.",
+    'feat2.desc': "Cherokee, Grey's Anatomy, Figs, Dickies — прямі поставки, без підробок.",
     'feat3.title': 'Особистий підхід',
     'feat3.desc': 'Допоможемо з розмірами, порадимо крій, покажемо реальні фото — як подрузі.',
 
@@ -117,7 +117,7 @@ const translations = {
     'feat1.title': 'Doctor-led',
     'feat1.desc': 'Dariya is a practicing anesthesiologist. Every suit is tested on a real shift.',
     'feat2.title': 'Authentic USA',
-    'feat2.desc': "Cherokee, Grey's Anatomy, Figs, Dickies, Toffeln — direct import, no fakes.",
+    'feat2.desc': "Cherokee, Grey's Anatomy, Figs, Dickies — direct import, no fakes.",
     'feat3.title': 'Personal touch',
     'feat3.desc': "We help with sizing, cuts and share real photos — like a friend would.",
 
@@ -521,6 +521,19 @@ function bindAuth() {
 
   document.getElementById('btn-signout').addEventListener('click', signOut);
   document.getElementById('btn-admin-enter').addEventListener('click', () => go('admin'));
+
+  // Show / hide password toggles
+  document.querySelectorAll('[data-toggle-pw]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.getAttribute('data-toggle-pw'));
+      if (!input) return;
+      const willShow = input.type === 'password';
+      input.type = willShow ? 'text' : 'password';
+      btn.querySelector('.eye-on').classList.toggle('hidden', willShow);
+      btn.querySelector('.eye-off').classList.toggle('hidden', !willShow);
+      btn.setAttribute('aria-label', willShow ? 'Hide password' : 'Show password');
+    });
+  });
 
   // Avatar upload
   document.getElementById('avatar-input').addEventListener('change', async (e) => {
