@@ -582,12 +582,8 @@ function bindAuth() {
   document.getElementById('avatar-input').addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 1.5 * 1024 * 1024) { alert('Файл більший за 1.5 MB.'); return; }
-    const dataUrl = await new Promise(res => {
-      const r = new FileReader();
-      r.onload = () => res(r.result);
-      r.readAsDataURL(file);
-    });
+    if (!file.type.startsWith('image/')) { alert('Файл не є зображенням.'); return; }
+    const dataUrl = await imageFileToDataURL(file, { maxSide: 512, quality: 0.85 });
     updateAccount({ avatar: dataUrl });
     toast(t('toast.avatarUpdated'));
     renderCabinet();
@@ -991,12 +987,8 @@ function bindAdmin() {
   photoInput.addEventListener('change', async () => {
     const file = photoInput.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { alert('Файл більший за 2 MB.'); photoInput.value = ''; return; }
-    const dataUrl = await new Promise(res => {
-      const r = new FileReader();
-      r.onload = () => res(r.result);
-      r.readAsDataURL(file);
-    });
+    if (!file.type.startsWith('image/')) { alert('Файл не є зображенням.'); photoInput.value = ''; return; }
+    const dataUrl = await imageFileToDataURL(file, { maxSide: 1600, quality: 0.85 });
     state.adminPhotoData = dataUrl;
     const preview = document.getElementById('p-photo-preview');
     preview.src = dataUrl;
@@ -1177,12 +1169,8 @@ function bindNews() {
   photoInput.addEventListener('change', async () => {
     const file = photoInput.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) { alert('Файл більший за 2 MB.'); photoInput.value = ''; return; }
-    const dataUrl = await new Promise(res => {
-      const r = new FileReader();
-      r.onload = () => res(r.result);
-      r.readAsDataURL(file);
-    });
+    if (!file.type.startsWith('image/')) { alert('Файл не є зображенням.'); photoInput.value = ''; return; }
+    const dataUrl = await imageFileToDataURL(file, { maxSide: 1600, quality: 0.85 });
     state.newsPhotoData = dataUrl;
     const preview = document.getElementById('n-photo-preview');
     preview.src = dataUrl;
@@ -1416,6 +1404,41 @@ function escapeHTML(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[c]));
+}
+
+// Read an image File and produce a downscaled JPEG data URL that fits in
+// localStorage. Handles phone photos (5-15 MB) transparently.
+async function imageFileToDataURL(file, opts = {}) {
+  const maxSide = opts.maxSide ?? 1600;
+  const quality = opts.quality ?? 0.85;
+
+  const rawUrl = await new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+
+  const img = await new Promise((res, rej) => {
+    const i = new Image();
+    i.onload = () => res(i);
+    i.onerror = rej;
+    i.src = rawUrl;
+  });
+
+  // Small enough already — keep the original.
+  if (img.width <= maxSide && img.height <= maxSide && file.size < 400 * 1024) {
+    return rawUrl;
+  }
+
+  const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+  const w = Math.round(img.width * scale);
+  const h = Math.round(img.height * scale);
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, w, h);
+  return canvas.toDataURL('image/jpeg', quality);
 }
 
 // =============================================================================
