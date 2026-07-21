@@ -174,16 +174,22 @@ body { font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter'
 #sheet.open #sheet-backdrop,
 #add-sheet.open #add-sheet-backdrop,
 #user-sheet.open #user-sheet-backdrop,
-#cart-sheet.open #cart-sheet-backdrop { opacity: 1; }
+#cart-sheet.open #cart-sheet-backdrop,
+#news-sheet.open #news-sheet-backdrop,
+#news-view-sheet.open #news-view-backdrop { opacity: 1; }
 #sheet.open #sheet-panel,
 #add-sheet.open #add-sheet-panel,
 #user-sheet.open #user-sheet-panel,
-#cart-sheet.open #cart-sheet-panel { transform: translateY(0); opacity: 1; }
+#cart-sheet.open #cart-sheet-panel,
+#news-sheet.open #news-sheet-panel,
+#news-view-sheet.open #news-view-panel { transform: translateY(0); opacity: 1; }
 @media (min-width: 640px) {
   #sheet.open #sheet-panel,
   #add-sheet.open #add-sheet-panel,
   #user-sheet.open #user-sheet-panel,
-  #cart-sheet.open #cart-sheet-panel { transform: translateY(0) scale(1); }
+  #cart-sheet.open #cart-sheet-panel,
+  #news-sheet.open #news-sheet-panel,
+  #news-view-sheet.open #news-view-panel { transform: translateY(0) scale(1); }
 }
 
 /* Toast visible */

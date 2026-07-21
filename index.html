@@ -75,6 +75,9 @@
         <button data-nav="shop" class="nav-btn relative z-10 flex items-center gap-1.5 px-3 sm:px-4 h-8 text-[13px] font-semibold rounded-full transition-colors">
           <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i><span class="hidden sm:inline" data-i18n="nav.shop">Магазин</span>
         </button>
+        <button data-nav="news" class="nav-btn relative z-10 flex items-center gap-1.5 px-3 sm:px-4 h-8 text-[13px] font-semibold rounded-full transition-colors">
+          <i data-lucide="newspaper" class="w-3.5 h-3.5"></i><span class="hidden sm:inline" data-i18n="nav.news">Новини</span>
+        </button>
         <button data-nav="auth" class="nav-btn relative z-10 flex items-center gap-1.5 px-3 sm:px-4 h-8 text-[13px] font-semibold rounded-full transition-colors">
           <i data-lucide="user-round" class="w-3.5 h-3.5"></i><span class="hidden sm:inline" data-i18n="nav.auth">Акаунт</span>
         </button>
@@ -506,6 +509,27 @@
     </section>
 
     <!-- ==================================================== -->
+    <!-- PAGE: NEWS FEED -->
+    <!-- ==================================================== -->
+    <section id="page-news" class="page hidden">
+      <div class="max-w-3xl mx-auto px-5 sm:px-8 pt-8 pb-24">
+        <div class="flex items-end justify-between gap-3 mb-6 flex-wrap">
+          <div>
+            <h2 class="text-[32px] sm:text-[40px] font-extrabold tracking-tight" data-i18n="news.title">Новини</h2>
+            <p class="text-ios-text2 dark:text-ios-darkText2 text-[15px] mt-1" data-i18n="news.sub">Оновлення асортименту, історії, знижки</p>
+          </div>
+          <button id="btn-open-news" data-admin-only class="hidden inline-flex items-center gap-2 h-11 px-4 rounded-xl bg-brand hover:bg-brand-dark text-white font-semibold shadow-lg shadow-brand/25 transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span data-i18n="news.add">Нова новина</span>
+          </button>
+        </div>
+
+        <div id="news-list" class="space-y-4"></div>
+        <p id="news-empty" class="text-center text-ios-text2 dark:text-ios-darkText2 text-[14px] py-16" data-i18n="news.empty">Новин поки немає. Заходь пізніше!</p>
+      </div>
+    </section>
+
+    <!-- ==================================================== -->
     <!-- PAGE 4: ADMIN PANEL -->
     <!-- ==================================================== -->
     <section id="page-admin" class="page hidden">
@@ -812,6 +836,86 @@
             <span data-i18n="sheet.cancel">Скасувати</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- NEWS: create sheet -->
+  <!-- ============================================================ -->
+  <div id="news-sheet" class="fixed inset-0 z-50 hidden">
+    <div id="news-sheet-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+    <div id="news-sheet-panel"
+      class="absolute inset-x-0 bottom-0 sm:inset-0 sm:m-auto sm:max-w-lg sm:h-fit
+             translate-y-full sm:translate-y-4 sm:scale-95 opacity-0
+             transition-all duration-300 ease-out">
+      <div class="bg-white dark:bg-ios-darkCard rounded-t-[28px] sm:rounded-[28px] sm:m-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white/85 dark:bg-ios-darkCard/85 backdrop-blur-xl z-10 flex items-center justify-between px-5 py-3 border-b border-black/5 dark:border-white/10">
+          <button id="news-sheet-cancel" class="text-brand dark:text-brand-light font-semibold text-[15px]">
+            <span data-i18n="sheet.cancel">Скасувати</span>
+          </button>
+          <h3 class="font-bold text-[16px]" data-i18n="news.formTitle">Нова новина</h3>
+          <span class="w-16"></span>
+        </div>
+
+        <form id="news-form" class="space-y-3 p-5" novalidate>
+          <div class="ios-field">
+            <label for="n-title" data-i18n="news.fldTitle">Заголовок</label>
+            <input id="n-title" name="title" type="text" required />
+            <p class="err" data-err="n-title"></p>
+          </div>
+
+          <div class="ios-field">
+            <label for="n-body" data-i18n="news.fldBody">Текст новини</label>
+            <textarea id="n-body" name="body" rows="6" required></textarea>
+            <p class="err" data-err="n-body"></p>
+          </div>
+
+          <div>
+            <div class="text-[12px] font-medium text-ios-text2 dark:text-ios-darkText2 mb-1.5 ml-1" data-i18n="news.cover">Обкладинка (необовʼязково)</div>
+            <label for="n-photo" class="flex flex-col items-center justify-center h-40 rounded-2xl border-2 border-dashed border-black/15 dark:border-white/15 hover:border-brand dark:hover:border-brand-light cursor-pointer transition overflow-hidden relative bg-black/[0.02] dark:bg-white/[0.03]">
+              <img id="n-photo-preview" class="hidden absolute inset-0 w-full h-full object-cover" />
+              <div id="n-photo-empty" class="text-center text-ios-text2 dark:text-ios-darkText2">
+                <i data-lucide="image-plus" class="w-6 h-6 mx-auto mb-1"></i>
+                <div class="text-[13px] font-semibold" data-i18n="admin.photoDrop">Натисніть, щоб обрати фото</div>
+                <div class="text-[11px] opacity-70">JPG / PNG · до 2 MB</div>
+              </div>
+            </label>
+            <input id="n-photo" name="photo" type="file" accept="image/*" class="hidden" />
+          </div>
+
+          <button type="submit"
+            class="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-semibold transition mt-2">
+            <span data-i18n="news.publish">Опублікувати</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- NEWS: read sheet -->
+  <!-- ============================================================ -->
+  <div id="news-view-sheet" class="fixed inset-0 z-50 hidden">
+    <div id="news-view-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+    <div id="news-view-panel"
+      class="absolute inset-x-0 bottom-0 sm:inset-0 sm:m-auto sm:max-w-2xl sm:h-fit
+             translate-y-full sm:translate-y-4 sm:scale-95 opacity-0
+             transition-all duration-300 ease-out">
+      <div class="bg-white dark:bg-ios-darkCard rounded-t-[28px] sm:rounded-[28px] sm:m-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white/85 dark:bg-ios-darkCard/85 backdrop-blur-xl z-10 flex items-center justify-between px-5 py-3 border-b border-black/5 dark:border-white/10">
+          <button id="news-view-close" class="text-brand dark:text-brand-light font-semibold text-[15px]">
+            <span data-i18n="sheet.cancel">Закрити</span>
+          </button>
+          <h3 class="font-bold text-[16px]" data-i18n="news.view">Новина</h3>
+          <span class="w-16"></span>
+        </div>
+        <article class="p-5 sm:p-6">
+          <img id="nv-cover" class="hidden w-full aspect-[16/9] object-cover rounded-2xl mb-4" alt="" />
+          <div id="nv-date" class="text-[12px] text-ios-text2 dark:text-ios-darkText2 mb-1"></div>
+          <h2 id="nv-title" class="text-[24px] sm:text-[28px] font-extrabold tracking-tight leading-tight"></h2>
+          <div id="nv-body" class="mt-4 text-[15px] leading-relaxed whitespace-pre-line"></div>
+        </article>
       </div>
     </div>
   </div>

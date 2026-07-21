@@ -5,7 +5,15 @@
 // =============================================================================
 const translations = {
   ua: {
-    'nav.home': 'Головна', 'nav.shop': 'Магазин', 'nav.auth': 'Акаунт', 'nav.admin': 'Адмін',
+    'nav.home': 'Головна', 'nav.shop': 'Магазин', 'nav.news': 'Новини', 'nav.auth': 'Акаунт', 'nav.admin': 'Адмін',
+
+    'news.title': 'Новини', 'news.sub': 'Оновлення асортименту, історії, знижки',
+    'news.add': 'Нова новина', 'news.empty': 'Новин поки немає. Заходь пізніше!',
+    'news.formTitle': 'Нова новина', 'news.fldTitle': 'Заголовок', 'news.fldBody': 'Текст новини',
+    'news.cover': 'Обкладинка (необовʼязково)', 'news.publish': 'Опублікувати',
+    'news.view': 'Новина', 'news.read': 'Читати далі', 'news.delete': 'Видалити новину',
+    'news.confirmDel': 'Видалити цю новину?', 'news.published': 'Новину опубліковано',
+    'news.removed': 'Новину видалено',
 
     'hero.badge': 'Преміум медичний одяг зі США',
     'hero.slogan1': 'Костюм лікаря —',
@@ -105,7 +113,15 @@ const translations = {
     'prod.d4.title': 'Класичний медичний халат',
   },
   en: {
-    'nav.home': 'Home', 'nav.shop': 'Shop', 'nav.auth': 'Account', 'nav.admin': 'Admin',
+    'nav.home': 'Home', 'nav.shop': 'Shop', 'nav.news': 'News', 'nav.auth': 'Account', 'nav.admin': 'Admin',
+
+    'news.title': 'News', 'news.sub': 'New arrivals, stories, discounts',
+    'news.add': 'New post', 'news.empty': 'No news yet. Check back later!',
+    'news.formTitle': 'New post', 'news.fldTitle': 'Title', 'news.fldBody': 'Body',
+    'news.cover': 'Cover image (optional)', 'news.publish': 'Publish',
+    'news.view': 'Post', 'news.read': 'Read more', 'news.delete': 'Delete post',
+    'news.confirmDel': 'Delete this post?', 'news.published': 'Post published',
+    'news.removed': 'Post removed',
 
     'hero.badge': 'Premium US-made medical apparel',
     'hero.slogan1': "A doctor's suit isn't",
@@ -215,6 +231,7 @@ const DB = {
   accounts:        { get: () => DB._read('md_accounts', []),        set: (v) => DB._write('md_accounts', v) },
   products_custom: { get: () => DB._read('md_products_custom', []), set: (v) => DB._write('md_products_custom', v) },
   cart:            { get: () => DB._read('md_cart', []),             set: (v) => DB._write('md_cart', v) },
+  news:            { get: () => DB._read('md_news', []),             set: (v) => DB._write('md_news', v) },
   deleted_builtins:{ get: () => DB._read('md_deleted_builtins', []), set: (v) => DB._write('md_deleted_builtins', v) },
   orders:          { get: () => DB._read('md_orders', []),          set: (v) => DB._write('md_orders', v) },
   session:         { get: () => DB._read('md_session', null),       set: (v) => DB._write('md_session', v) },
@@ -264,6 +281,7 @@ const state = {
   cart: DB.cart.get(),
   adminPhotoData: null,
   adminAvail: 'stock',
+  newsPhotoData: null,
   sessionId: sessionStorage.getItem('md_sid') || (() => {
     const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
     sessionStorage.setItem('md_sid', id);
@@ -332,6 +350,7 @@ function updateDOM() {
   renderAuthMode();
   renderAdminList();
   renderAdminOrders();
+  renderNews();
   renderOnline();
   updateNavThumb();
 }
@@ -349,7 +368,10 @@ function toggleTheme() {
 // =============================================================================
 // 6. Page navigation
 // =============================================================================
-function go(page) {
+const VALID_PAGES = new Set(['home','shop','news','auth','admin']);
+
+function go(page, opts = {}) {
+  if (!VALID_PAGES.has(page)) page = 'home';
   if (page === 'shop' && !state.user) page = 'auth';
   if (page === 'admin' && state.user?.role !== 'admin') page = 'auth';
 
@@ -364,6 +386,24 @@ function go(page) {
   }
   updateNavThumb();
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Sync URL. `opts.silent` avoids feedback loops when navigating due to hashchange.
+  const desiredHash = '#' + page;
+  if (!opts.silent && location.hash !== desiredHash) {
+    history.pushState({ page }, '', desiredHash);
+  }
+  document.title = pageTitle(page);
+}
+
+function pageTitle(page) {
+  const base = 'MEDIC DARIYA';
+  const key = { home: null, shop: 'nav.shop', news: 'nav.news', auth: 'nav.auth', admin: 'nav.admin' }[page];
+  return key ? `${t(key)} — ${base}` : `${base} — Premium Medical Apparel`;
+}
+
+function handleHashChange() {
+  const raw = (location.hash || '#home').slice(1);
+  go(raw || 'home', { silent: true });
 }
 
 function updateNavThumb() {
@@ -1119,7 +1159,154 @@ function renderAdminOrders() {
 }
 
 // =============================================================================
-// 14. Presence / online users
+// News feed
+// =============================================================================
+const openNewsSheet = () => openSheetById('news-sheet');
+const closeNewsSheet = () => closeSheetById('news-sheet');
+const openNewsView = () => openSheetById('news-view-sheet');
+const closeNewsView = () => closeSheetById('news-view-sheet');
+
+function bindNews() {
+  document.getElementById('btn-open-news').addEventListener('click', openNewsSheet);
+  document.getElementById('news-sheet-backdrop').addEventListener('click', closeNewsSheet);
+  document.getElementById('news-sheet-cancel').addEventListener('click', closeNewsSheet);
+  document.getElementById('news-view-backdrop').addEventListener('click', closeNewsView);
+  document.getElementById('news-view-close').addEventListener('click', closeNewsView);
+
+  const photoInput = document.getElementById('n-photo');
+  photoInput.addEventListener('change', async () => {
+    const file = photoInput.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { alert('Файл більший за 2 MB.'); photoInput.value = ''; return; }
+    const dataUrl = await new Promise(res => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.readAsDataURL(file);
+    });
+    state.newsPhotoData = dataUrl;
+    const preview = document.getElementById('n-photo-preview');
+    preview.src = dataUrl;
+    preview.classList.remove('hidden');
+    document.getElementById('n-photo-empty').classList.add('hidden');
+  });
+
+  document.getElementById('news-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const title = (fd.get('title') || '').trim();
+    const body = (fd.get('body') || '').trim();
+
+    let ok = true;
+    if (!title) { setFieldError('n-title', 'err.required'); ok = false; } else setFieldError('n-title', null);
+    if (!body)  { setFieldError('n-body',  'err.required'); ok = false; } else setFieldError('n-body', null);
+    if (!ok) return;
+
+    const post = {
+      id: 'n' + Date.now(),
+      title, body,
+      cover: state.newsPhotoData || null,
+      createdAt: new Date().toISOString(),
+      authorName: state.user?.name || 'Admin',
+    };
+    const list = DB.news.get();
+    list.unshift(post);
+    DB.news.set(list);
+
+    form.reset();
+    state.newsPhotoData = null;
+    document.getElementById('n-photo-preview').classList.add('hidden');
+    document.getElementById('n-photo-empty').classList.remove('hidden');
+
+    closeNewsSheet();
+    toast(t('news.published'));
+    renderNews();
+  });
+}
+
+function renderNews() {
+  const list = document.getElementById('news-list');
+  const empty = document.getElementById('news-empty');
+  if (!list) return;
+
+  const posts = DB.news.get();
+  empty.classList.toggle('hidden', posts.length > 0);
+  const isAdmin = state.user?.role === 'admin';
+
+  list.innerHTML = posts.map(p => {
+    const d = new Date(p.createdAt);
+    const dateStr = d.toLocaleDateString(state.lang === 'ua' ? 'uk-UA' : 'en-GB',
+      { day: '2-digit', month: 'long', year: 'numeric' });
+    const cover = p.cover
+      ? `<img src="${p.cover}" alt="" class="w-full aspect-[16/9] object-cover" />`
+      : `<div class="w-full aspect-[16/9] bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center">
+           <img src="assets/logo.jpg" class="w-16 h-16 rounded-2xl opacity-90" alt="" />
+         </div>`;
+    const delBtn = isAdmin ? `
+      <button data-news-del="${p.id}"
+        class="shrink-0 w-9 h-9 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center transition"
+        aria-label="Delete">
+        <i data-lucide="trash-2" class="w-4 h-4"></i>
+      </button>` : '';
+
+    return `
+      <article class="rounded-[24px] bg-white dark:bg-ios-darkCard shadow-sm overflow-hidden">
+        <button data-news-open="${p.id}" class="block w-full text-left">
+          ${cover}
+        </button>
+        <div class="p-5">
+          <div class="flex items-start gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="text-[12px] font-semibold text-brand dark:text-brand-light uppercase tracking-wider">${dateStr}</div>
+              <button data-news-open="${p.id}" class="block text-left mt-1">
+                <h3 class="font-bold text-[19px] sm:text-[22px] leading-tight hover:text-brand dark:hover:text-brand-light transition">${escapeHTML(p.title)}</h3>
+              </button>
+              <p class="mt-2 text-[14.5px] text-ios-text2 dark:text-ios-darkText2 leading-relaxed line-clamp-3">${escapeHTML(p.body)}</p>
+              <button data-news-open="${p.id}"
+                class="mt-3 text-brand dark:text-brand-light font-semibold text-[14px] hover:underline">
+                ${t('news.read')} →
+              </button>
+            </div>
+            ${delBtn}
+          </div>
+        </div>
+      </article>`;
+  }).join('');
+
+  list.querySelectorAll('[data-news-open]').forEach(b => {
+    b.addEventListener('click', () => openNewsPost(b.getAttribute('data-news-open')));
+  });
+  list.querySelectorAll('[data-news-del]').forEach(b => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = b.getAttribute('data-news-del');
+      if (!confirm(t('news.confirmDel'))) return;
+      DB.news.set(DB.news.get().filter(x => x.id !== id));
+      toast(t('news.removed'));
+      renderNews();
+    });
+  });
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function openNewsPost(id) {
+  const post = DB.news.get().find(p => p.id === id);
+  if (!post) return;
+  const d = new Date(post.createdAt);
+  const dateStr = d.toLocaleDateString(state.lang === 'ua' ? 'uk-UA' : 'en-GB',
+    { day: '2-digit', month: 'long', year: 'numeric' });
+  document.getElementById('nv-title').textContent = post.title;
+  document.getElementById('nv-body').textContent = post.body;
+  document.getElementById('nv-date').textContent = dateStr;
+  const cover = document.getElementById('nv-cover');
+  if (post.cover) { cover.src = post.cover; cover.classList.remove('hidden'); }
+  else            { cover.classList.add('hidden'); cover.removeAttribute('src'); }
+  openNewsView();
+}
+
+// =============================================================================
+// Presence / online users
 // =============================================================================
 const PRESENCE_TTL = 20_000;         // treat entry as online if seen in last 20s
 const PRESENCE_INTERVAL = 5_000;     // heartbeat every 5s
@@ -1266,6 +1453,8 @@ function bindGlobal() {
     if (e.key === 'Escape') { closeSheet(); closeAddSheet(); closeUserSheet(); closeCartSheet(); }
   });
   window.addEventListener('resize', updateNavThumb);
+  window.addEventListener('hashchange', handleHashChange);
+  window.addEventListener('popstate', handleHashChange);
 
   // Cross-tab sync of DB changes
   window.addEventListener('storage', (e) => {
@@ -1290,8 +1479,12 @@ async function boot() {
   bindGlobal();
   bindAuth();
   bindAdmin();
+  bindNews();
   updateDOM();
   if (window.lucide) window.lucide.createIcons();
+
+  // Initial route from URL hash (deep-linkable page)
+  handleHashChange();
 
   // Presence
   presenceHeartbeat();
