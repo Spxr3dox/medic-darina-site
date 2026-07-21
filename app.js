@@ -55,7 +55,7 @@ const translations = {
     'err.required': "Обов'язкове поле", 'err.photo': 'Оберіть фото товару', 'err.sizes': 'Оберіть хоча б один розмір',
 
     'shop.title': 'Каталог', 'shop.sub': 'Свіжа колекція медичного одягу',
-    'shop.buy': 'Купити', 'shop.size': 'Розмір', 'shop.qty': 'Кількість',
+    'shop.buy': 'Додати в корзину', 'shop.size': 'Розмір', 'shop.qty': 'Кількість',
     'shop.stock': 'В наявності', 'shop.order': 'Під замовлення',
     'shop.sizeTop': 'Розмір топ', 'shop.sizeBottom': 'Розмір штани', 'shop.pantsLen': 'Довжина',
     'shop.old': 'Стара ціна',
@@ -154,7 +154,7 @@ const translations = {
     'err.required': 'This field is required', 'err.photo': 'Please choose a product photo', 'err.sizes': 'Pick at least one size',
 
     'shop.title': 'Shop', 'shop.sub': 'Fresh medical apparel collection',
-    'shop.buy': 'Buy', 'shop.size': 'Size', 'shop.qty': 'Quantity',
+    'shop.buy': 'Add to cart', 'shop.size': 'Size', 'shop.qty': 'Quantity',
     'shop.stock': 'In stock', 'shop.order': 'On order',
     'shop.sizeTop': 'Top size', 'shop.sizeBottom': 'Pants size', 'shop.pantsLen': 'Length',
     'shop.old': 'Old price',
