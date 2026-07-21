@@ -88,6 +88,7 @@ const translations = {
     'admin.sizesTop': 'Розмір топ', 'admin.sizesBottom': 'Розмір штани', 'admin.pantsLen': 'Довжина штанів',
     'admin.sizesHint': 'Якщо товар без штанів — залиш блок штанів і довжину порожніми.',
     'admin.oldPrice': 'Стара ціна для знижки (₴) — необовʼязково',
+    'admin.sku': 'Код товару', 'admin.color': 'Колір',
     'admin.add': 'Додати товар', 'admin.addHint': 'Додати новий товар можна прямо з каталогу',
     'admin.listTitle': 'Мої товари', 'admin.empty': 'Поки що немає доданих товарів. Кнопка «+ Додати товар» — в каталозі.',
     'admin.delete': 'Видалити', 'admin.count': 'товарів',
@@ -187,6 +188,7 @@ const translations = {
     'admin.sizesTop': 'Top size', 'admin.sizesBottom': 'Pants size', 'admin.pantsLen': 'Pants length',
     'admin.sizesHint': 'If the item has no pants — leave the pants and length blocks empty.',
     'admin.oldPrice': 'Original price for a discount (UAH) — optional',
+    'admin.sku': 'Product code', 'admin.color': 'Colour',
     'admin.add': 'Add product', 'admin.addHint': 'Add a new product right from the catalog',
     'admin.listTitle': 'My products', 'admin.empty': 'No products yet. Use "+ Add product" in the catalog.',
     'admin.delete': 'Delete', 'admin.count': 'items',
@@ -283,6 +285,7 @@ function allProducts() {
   const builtins = defaultProducts.filter(p => !deleted.has(p.id));
   const custom = DB.products_custom.get().map(p => ({
     id: p.id, price: p.price, oldPrice: p.oldPrice ?? null,
+    sku: p.sku || '', color: p.color || '',
     // Legacy fallback: if a product was saved before we split top/bottom,
     // reuse its old .sizes as top sizes.
     sizesTop: Array.isArray(p.sizesTop) ? p.sizesTop : (Array.isArray(p.sizes) ? p.sizes : []),
@@ -670,6 +673,11 @@ function renderShop() {
           <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${availClass}">${availLabel}</span>
         </div>
         <h3 class="font-bold text-[16px] leading-tight">${escapeHTML(title)}</h3>
+        ${(p.color || p.sku) ? `
+          <div class="mt-1 flex items-center gap-2 flex-wrap text-[11.5px] text-ios-text2 dark:text-ios-darkText2">
+            ${p.color ? `<span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-brand"></span>${escapeHTML(p.color)}</span>` : ''}
+            ${p.sku ? `<span class="font-mono opacity-80">SKU ${escapeHTML(p.sku)}</span>` : ''}
+          </div>` : ''}
         ${desc}
         <div class="mt-1 flex items-baseline gap-2 flex-wrap">
           <span class="text-brand dark:text-brand-light font-extrabold text-[17px]">${p.price} <span class="text-[13px] font-semibold opacity-80">${t('cart.currency')}</span></span>
@@ -985,6 +993,8 @@ function bindAdmin() {
 
     const product = {
       id: 'c' + Date.now(), title: name, desc, price, oldPrice,
+      sku: (fd.get('sku') || '').trim(),
+      color: (fd.get('color') || '').trim(),
       sizesTop, sizesBottom, pantsLengths,
       avail: state.adminAvail, photo: state.adminPhotoData,
       createdAt: new Date().toISOString(),
