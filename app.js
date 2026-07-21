@@ -22,6 +22,9 @@ const translations = {
     'feat3.title': 'Особистий підхід',
     'feat3.desc': 'Допоможемо з розмірами, порадимо крій, покажемо реальні фото — як подрузі.',
 
+    'quote.text': '«Те, у що вдягнений лікар, має значення. Одяг передає повагу до пацієнта та до власної професії.»',
+    'quote.role': 'Нейрохірург, головний медичний кореспондент CNN',
+
     'auth.title': 'Створіть акаунт', 'auth.sub': 'Щоб перейти до магазину, зареєструйтесь',
     'auth.titleIn': 'Ласкаво просимо', 'auth.subIn': 'Увійдіть у свій акаунт',
     'auth.modeSignup': 'Реєстрація', 'auth.modeSignin': 'Вхід',
@@ -93,6 +96,9 @@ const translations = {
     'feat2.desc': "Cherokee, Grey's Anatomy, Figs, Dickies, Tofflen — direct import, no fakes.",
     'feat3.title': 'Personal touch',
     'feat3.desc': "We help with sizing, cuts and share real photos — like a friend would.",
+
+    'quote.text': "“What a doctor wears matters. Clothing conveys respect for the patient and for one's own profession.”",
+    'quote.role': 'Neurosurgeon, Chief Medical Correspondent, CNN',
 
     'auth.title': 'Create an account', 'auth.sub': 'Register to enter the shop',
     'auth.titleIn': 'Welcome back', 'auth.subIn': 'Sign in to your account',
