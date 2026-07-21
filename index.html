@@ -629,6 +629,15 @@
             </div>
 
             <div>
+              <div class="text-[12px] font-medium text-ios-text2 dark:text-ios-darkText2 mb-1.5 ml-1" data-i18n="admin.gender">Стать</div>
+              <div id="p-gender" class="size-seg">
+                <button type="button" data-gender="unisex" class="active" data-i18n="gender.unisex">Унісекс</button>
+                <button type="button" data-gender="female" data-i18n="gender.female">Жіночі</button>
+                <button type="button" data-gender="male" data-i18n="gender.male">Чоловічі</button>
+              </div>
+            </div>
+
+            <div>
               <div class="text-[12px] font-medium text-ios-text2 dark:text-ios-darkText2 mb-1.5 ml-1" data-i18n="admin.category">Категорія</div>
               <div id="p-category" class="flex flex-wrap gap-2">
                 <button type="button" data-cat="scrubs" class="size-chip active" data-i18n="cat.scrubs">Костюми</button>
@@ -755,6 +764,14 @@
               <span id="hello-user"></span>
             </div>
           </div>
+        </div>
+
+        <!-- Gender filter -->
+        <div id="gender-seg" class="size-seg mb-3 max-w-lg">
+          <button data-gender-filter="all"    class="active"><span data-i18n="shop.filterAll">Всі</span></button>
+          <button data-gender-filter="female"><span data-i18n="gender.female">Жіночі</span></button>
+          <button data-gender-filter="male"><span data-i18n="gender.male">Чоловічі</span></button>
+          <button data-gender-filter="unisex"><span data-i18n="gender.unisex">Унісекс</span></button>
         </div>
 
         <!-- Availability filter (segmented) -->
