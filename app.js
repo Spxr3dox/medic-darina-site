@@ -61,6 +61,9 @@ const translations = {
     'shop.old': 'Стара ціна',
 
     'cart.label': 'Кошик', 'cart.items': 'товарів', 'cart.currency': '₴',
+    'cart.title': 'Ваша корзина', 'cart.total': 'Разом', 'cart.checkout': 'Оформити замовлення',
+    'cart.empty': 'Корзина поки що порожня.', 'cart.clear': 'Очистити',
+    'cart.confirmClear': 'Прибрати всі товари з корзини?',
 
     'sheet.title': 'Дякуємо за замовлення!',
     'sheet.desc': "Для підтвердження та уточнення деталей оберіть зручний спосіб зв'язку з нашим менеджером:",
@@ -157,6 +160,9 @@ const translations = {
     'shop.old': 'Old price',
 
     'cart.label': 'Cart', 'cart.items': 'items', 'cart.currency': 'UAH',
+    'cart.title': 'Your cart', 'cart.total': 'Total', 'cart.checkout': 'Checkout',
+    'cart.empty': 'Your cart is empty.', 'cart.clear': 'Clear',
+    'cart.confirmClear': 'Remove everything from the cart?',
 
     'sheet.title': 'Thank you for your order!',
     'sheet.desc': 'To confirm and clarify the details, please choose a convenient way to contact our manager:',
@@ -206,6 +212,7 @@ const DB = {
   _write(key, v) { localStorage.setItem(key, JSON.stringify(v)); },
   accounts:        { get: () => DB._read('md_accounts', []),        set: (v) => DB._write('md_accounts', v) },
   products_custom: { get: () => DB._read('md_products_custom', []), set: (v) => DB._write('md_products_custom', v) },
+  cart:            { get: () => DB._read('md_cart', []),             set: (v) => DB._write('md_cart', v) },
   deleted_builtins:{ get: () => DB._read('md_deleted_builtins', []), set: (v) => DB._write('md_deleted_builtins', v) },
   orders:          { get: () => DB._read('md_orders', []),          set: (v) => DB._write('md_orders', v) },
   session:         { get: () => DB._read('md_session', null),       set: (v) => DB._write('md_session', v) },
@@ -252,7 +259,7 @@ const state = {
   currentPage: 'home',
   authMode: 'signup',
   user: DB.session.get(),
-  cart: [],
+  cart: DB.cart.get(),
   adminPhotoData: null,
   adminAvail: 'stock',
   sessionId: sessionStorage.getItem('md_sid') || (() => {
@@ -316,6 +323,7 @@ function updateDOM() {
 
   renderShop();
   renderCartPill();
+  renderCartSheet();
   renderHelloUser();
   renderCabinet();
   renderAuthMode();
@@ -723,19 +731,62 @@ function renderHelloUser() {
 // =============================================================================
 // 10. Buy / Cart / Order
 // =============================================================================
-function buyNow(id, size, qty) {
+// "Buy" only adds to the cart. Real order placement happens on checkout.
+function buyNow(id, sizeLabel, qty) {
   const product = allProducts().find(p => p.id === id);
   if (!product) return;
-  addToCart(id, size, qty);
-  placeOrder([{ productId: id, title: productTitle(product), price: product.price, size, qty }]);
-  openSheet();
+  addToCart({
+    id, title: productTitle(product), price: product.price,
+    size: sizeLabel, qty,
+  });
+  toast(t('toast.added'));
 }
 
-function addToCart(id, size, qty) {
-  const existing = state.cart.find(i => i.id === id && i.size === size);
-  if (existing) existing.qty += qty;
-  else state.cart.push({ id, size, qty });
+function addToCart(item) {
+  const existing = state.cart.find(i => i.id === item.id && i.size === item.size);
+  if (existing) existing.qty = Math.min(20, existing.qty + item.qty);
+  else state.cart.push({ ...item });
+  persistCart();
   renderCartPill();
+  renderCartSheet();
+}
+
+function updateCartItem(index, qty) {
+  if (index < 0 || index >= state.cart.length) return;
+  if (qty <= 0) state.cart.splice(index, 1);
+  else state.cart[index].qty = Math.min(20, qty);
+  persistCart();
+  renderCartPill();
+  renderCartSheet();
+}
+
+function clearCart() {
+  state.cart = [];
+  persistCart();
+  renderCartPill();
+  renderCartSheet();
+  closeCartSheet();
+}
+
+function persistCart() { DB.cart.set(state.cart); }
+
+function cartTotal() {
+  return state.cart.reduce((s,i) => s + i.price * i.qty, 0);
+}
+
+function checkout() {
+  if (!state.user) { go('auth'); return; }
+  if (state.cart.length === 0) return;
+  const items = state.cart.map(i => ({
+    productId: i.id, title: i.title, price: i.price, size: i.size, qty: i.qty,
+  }));
+  placeOrder(items);
+  state.cart = [];
+  persistCart();
+  renderCartPill();
+  renderCartSheet();
+  closeCartSheet();
+  setTimeout(openSheet, 250);   // contact sheet (Telegram / Instagram)
 }
 
 function placeOrder(items) {
@@ -761,11 +812,57 @@ function renderCartPill() {
   const pill = document.getElementById('cart-pill');
   if (!pill) return;
   const count = state.cart.reduce((s,i) => s + i.qty, 0);
-  const priceOf = (id) => allProducts().find(p => p.id === id)?.price ?? 0;
-  const total = state.cart.reduce((s,i) => s + priceOf(i.id) * i.qty, 0);
   document.getElementById('cart-count').textContent = count;
-  document.getElementById('cart-total').textContent = total.toLocaleString('uk-UA');
+  document.getElementById('cart-total').textContent = cartTotal().toLocaleString('uk-UA');
   pill.classList.toggle('hidden', count === 0);
+}
+
+function renderCartSheet() {
+  const list = document.getElementById('cart-items');
+  const empty = document.getElementById('cart-empty');
+  const footer = document.getElementById('cart-footer');
+  if (!list) return;
+
+  const items = state.cart;
+  empty.classList.toggle('hidden', items.length > 0);
+  footer.classList.toggle('hidden', items.length === 0);
+  list.classList.toggle('hidden', items.length === 0);
+
+  list.innerHTML = items.map((it, idx) => `
+    <div class="flex items-start gap-3 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] p-3">
+      <div class="flex-1 min-w-0">
+        <div class="font-semibold text-[15px] truncate">${escapeHTML(it.title)}</div>
+        <div class="text-[12.5px] text-ios-text2 dark:text-ios-darkText2 mt-0.5">${escapeHTML(it.size)}</div>
+        <div class="mt-2 flex items-center gap-3">
+          <div class="stepper">
+            <button data-cart-step="-1" data-idx="${idx}">−</button>
+            <span class="val">${it.qty}</span>
+            <button data-cart-step="1" data-idx="${idx}">+</button>
+          </div>
+          <button data-cart-del="${idx}" class="text-red-500 text-[13px] font-semibold">
+            ✕
+          </button>
+        </div>
+      </div>
+      <div class="text-right shrink-0">
+        <div class="font-extrabold text-brand dark:text-brand-light">${(it.price * it.qty).toLocaleString('uk-UA')} ${t('cart.currency')}</div>
+        <div class="text-[11px] text-ios-text2 dark:text-ios-darkText2">${it.price} × ${it.qty}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('cart-sheet-total').textContent = cartTotal().toLocaleString('uk-UA');
+
+  list.querySelectorAll('[data-cart-step]').forEach(b => {
+    b.addEventListener('click', () => {
+      const idx = +b.getAttribute('data-idx');
+      const delta = +b.getAttribute('data-cart-step');
+      updateCartItem(idx, state.cart[idx].qty + delta);
+    });
+  });
+  list.querySelectorAll('[data-cart-del]').forEach(b => {
+    b.addEventListener('click', () => updateCartItem(+b.getAttribute('data-cart-del'), 0));
+  });
 }
 
 // =============================================================================
@@ -789,6 +886,8 @@ const openAddSheet = () => openSheetById('add-sheet');
 const closeAddSheet = () => closeSheetById('add-sheet');
 const openUserSheet = () => openSheetById('user-sheet');
 const closeUserSheet = () => closeSheetById('user-sheet');
+const openCartSheet = () => { renderCartSheet(); openSheetById('cart-sheet'); };
+const closeCartSheet = () => closeSheetById('cart-sheet');
 
 // =============================================================================
 // 12. Toast
@@ -1130,13 +1229,18 @@ function bindGlobal() {
 
   document.getElementById('sheet-backdrop').addEventListener('click', closeSheet);
   document.getElementById('sheet-cancel').addEventListener('click', closeSheet);
-  document.getElementById('cart-btn').addEventListener('click', openSheet);
+  document.getElementById('cart-btn').addEventListener('click', openCartSheet);
 
   document.getElementById('user-sheet-backdrop').addEventListener('click', closeUserSheet);
   document.getElementById('user-sheet-close').addEventListener('click', closeUserSheet);
 
+  document.getElementById('cart-sheet-backdrop').addEventListener('click', closeCartSheet);
+  document.getElementById('cart-sheet-close').addEventListener('click', closeCartSheet);
+  document.getElementById('cart-clear').addEventListener('click', () => { if (confirm(t('cart.confirmClear'))) clearCart(); });
+  document.getElementById('cart-checkout').addEventListener('click', checkout);
+
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { closeSheet(); closeAddSheet(); closeUserSheet(); }
+    if (e.key === 'Escape') { closeSheet(); closeAddSheet(); closeUserSheet(); closeCartSheet(); }
   });
   window.addEventListener('resize', updateNavThumb);
 

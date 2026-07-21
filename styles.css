@@ -154,14 +154,17 @@ body { font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter'
 /* Sheet open animation (works for #sheet, #add-sheet, #user-sheet) */
 #sheet.open #sheet-backdrop,
 #add-sheet.open #add-sheet-backdrop,
-#user-sheet.open #user-sheet-backdrop { opacity: 1; }
+#user-sheet.open #user-sheet-backdrop,
+#cart-sheet.open #cart-sheet-backdrop { opacity: 1; }
 #sheet.open #sheet-panel,
 #add-sheet.open #add-sheet-panel,
-#user-sheet.open #user-sheet-panel { transform: translateY(0); opacity: 1; }
+#user-sheet.open #user-sheet-panel,
+#cart-sheet.open #cart-sheet-panel { transform: translateY(0); opacity: 1; }
 @media (min-width: 640px) {
   #sheet.open #sheet-panel,
   #add-sheet.open #add-sheet-panel,
-  #user-sheet.open #user-sheet-panel { transform: translateY(0) scale(1); }
+  #user-sheet.open #user-sheet-panel,
+  #cart-sheet.open #cart-sheet-panel { transform: translateY(0) scale(1); }
 }
 
 /* Toast visible */
