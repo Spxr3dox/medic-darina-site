@@ -23,6 +23,7 @@ const translations = {
     'feat3.desc': 'Допоможемо з розмірами, порадимо крій, покажемо реальні фото — як подрузі.',
 
     'quote.text': '«Те, у що вдягнений лікар, має значення. Одяг передає повагу до пацієнта та до власної професії.»',
+    'quote.author': 'Санджай Ґупта', 'quote.initials': 'СҐ',
     'quote.role': 'Нейрохірург, головний медичний кореспондент CNN',
 
     'evo.badge': 'Історія медичного стилю',
@@ -113,6 +114,7 @@ const translations = {
     'feat3.desc': "We help with sizing, cuts and share real photos — like a friend would.",
 
     'quote.text': "“What a doctor wears matters. Clothing conveys respect for the patient and for one's own profession.”",
+    'quote.author': 'Sanjay Gupta', 'quote.initials': 'SG',
     'quote.role': 'Neurosurgeon, Chief Medical Correspondent, CNN',
 
     'evo.badge': 'History of medical style',
