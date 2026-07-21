@@ -79,6 +79,9 @@
         <button data-nav="auth" class="nav-btn relative z-10 flex items-center gap-1.5 px-3 sm:px-4 h-8 text-[13px] font-semibold rounded-full transition-colors">
           <i data-lucide="user-round" class="w-3.5 h-3.5"></i><span class="hidden sm:inline" data-i18n="nav.auth">Акаунт</span>
         </button>
+        <button data-nav="admin" data-admin-only class="nav-btn hidden relative z-10 flex items-center gap-1.5 px-3 sm:px-4 h-8 text-[13px] font-semibold rounded-full transition-colors">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i><span class="hidden sm:inline" data-i18n="nav.admin">Адмін</span>
+        </button>
       </nav>
 
       <!-- Right controls -->
@@ -216,17 +219,51 @@
     <!-- ==================================================== -->
     <section id="page-auth" class="page hidden">
       <div class="max-w-md mx-auto px-5 pt-10 pb-24">
-        <div class="rounded-[28px] bg-white dark:bg-ios-darkCard shadow-xl shadow-black/5 p-6 sm:p-8">
+        <!-- Signed-in card -->
+        <div id="auth-signed" class="hidden rounded-[28px] bg-white dark:bg-ios-darkCard shadow-xl shadow-black/5 p-6 sm:p-8 text-center">
+          <div class="mx-auto w-14 h-14 rounded-2xl bg-brand text-white flex items-center justify-center font-extrabold text-xl mb-3" id="signed-avatar">MD</div>
+          <h2 class="text-[22px] font-bold" id="signed-name"></h2>
+          <p class="text-[14px] text-ios-text2 dark:text-ios-darkText2 mt-1" id="signed-email"></p>
+          <div id="signed-role" class="hidden mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand/10 dark:bg-brand/20 text-brand dark:text-brand-light text-[12px] font-semibold">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            <span data-i18n="auth.roleAdmin">Адміністратор</span>
+          </div>
+          <div class="mt-6 space-y-2">
+            <button data-nav="shop" class="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-semibold transition">
+              <span data-i18n="auth.goShop">До магазину</span>
+            </button>
+            <button id="btn-admin-enter" class="hidden w-full h-12 rounded-xl bg-black text-white dark:bg-white dark:text-black font-semibold transition">
+              <span data-i18n="auth.goAdmin">Відкрити адмін-панель</span>
+            </button>
+            <button id="btn-signout" class="w-full h-11 rounded-xl text-red-500 font-medium hover:bg-red-500/10 transition">
+              <span data-i18n="auth.signout">Вийти</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Form card -->
+        <div id="auth-form-card" class="rounded-[28px] bg-white dark:bg-ios-darkCard shadow-xl shadow-black/5 p-6 sm:p-8">
           <div class="text-center mb-6">
             <div class="mx-auto w-14 h-14 rounded-2xl bg-brand text-white flex items-center justify-center font-extrabold text-xl mb-3">MD</div>
-            <h2 class="text-[24px] font-bold" data-i18n="auth.title">Створіть акаунт</h2>
-            <p class="text-[14px] text-ios-text2 dark:text-ios-darkText2 mt-1" data-i18n="auth.sub">Щоб перейти до магазину, зареєструйтесь</p>
+            <h2 class="text-[24px] font-bold" id="auth-heading" data-i18n="auth.title">Створіть акаунт</h2>
+            <p class="text-[14px] text-ios-text2 dark:text-ios-darkText2 mt-1" id="auth-sub" data-i18n="auth.sub">Щоб перейти до магазину, зареєструйтесь</p>
+          </div>
+
+          <!-- Sign up / Sign in segmented -->
+          <div id="auth-mode-seg" class="relative inline-flex w-full items-center p-0.5 rounded-xl bg-black/5 dark:bg-white/10 mb-5">
+            <span id="auth-mode-thumb" class="absolute top-0.5 left-0.5 h-[calc(100%-4px)] w-[calc(50%-2px)] rounded-lg bg-white dark:bg-ios-darkCard2 shadow-sm transition-transform duration-300"></span>
+            <button data-mode="signup" class="auth-mode-btn relative z-10 flex-1 h-9 text-[13px] font-semibold rounded-lg transition-colors">
+              <span data-i18n="auth.modeSignup">Реєстрація</span>
+            </button>
+            <button data-mode="signin" class="auth-mode-btn relative z-10 flex-1 h-9 text-[13px] font-semibold rounded-lg transition-colors">
+              <span data-i18n="auth.modeSignin">Вхід</span>
+            </button>
           </div>
 
           <form id="auth-form" class="space-y-3" novalidate>
-            <div class="ios-field">
+            <div class="ios-field" data-only="signup">
               <label for="f-name" data-i18n="auth.name">Ім'я</label>
-              <input id="f-name" name="name" type="text" autocomplete="name" required />
+              <input id="f-name" name="name" type="text" autocomplete="name" />
               <p class="err" data-err="name"></p>
             </div>
             <div class="ios-field">
@@ -236,18 +273,18 @@
             </div>
             <div class="ios-field">
               <label for="f-pass" data-i18n="auth.pass">Пароль</label>
-              <input id="f-pass" name="password" type="password" autocomplete="new-password" required />
+              <input id="f-pass" name="password" type="password" autocomplete="current-password" required />
               <p class="err" data-err="password"></p>
             </div>
-            <div class="ios-field">
+            <div class="ios-field" data-only="signup">
               <label for="f-pass2" data-i18n="auth.pass2">Підтвердіть пароль</label>
-              <input id="f-pass2" name="password2" type="password" autocomplete="new-password" required />
+              <input id="f-pass2" name="password2" type="password" autocomplete="new-password" />
               <p class="err" data-err="password2"></p>
             </div>
 
             <button type="submit"
               class="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark active:scale-[0.99] text-white font-semibold text-[16px] transition mt-2">
-              <span data-i18n="auth.submit">Створити акаунт</span>
+              <span id="auth-submit-label" data-i18n="auth.submit">Створити акаунт</span>
             </button>
 
             <button type="button" data-nav="home"
@@ -255,6 +292,93 @@
               <span data-i18n="auth.back">Назад</span>
             </button>
           </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================== -->
+    <!-- PAGE 4: ADMIN PANEL -->
+    <!-- ==================================================== -->
+    <section id="page-admin" class="page hidden">
+      <div class="max-w-6xl mx-auto px-5 sm:px-8 pt-8 pb-24">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-11 h-11 rounded-2xl bg-brand text-white flex items-center justify-center">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 class="text-[28px] sm:text-[36px] font-extrabold tracking-tight" data-i18n="admin.title">Адмін-панель</h2>
+            <p class="text-ios-text2 dark:text-ios-darkText2 text-[14px]" data-i18n="admin.sub">Додайте товари в магазин</p>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-5">
+          <!-- Add product form -->
+          <div class="lg:col-span-2 rounded-[24px] bg-white dark:bg-ios-darkCard shadow-sm p-5 sm:p-6 h-fit">
+            <h3 class="font-bold text-[18px] mb-4" data-i18n="admin.formTitle">Новий товар</h3>
+
+            <form id="admin-form" class="space-y-3" novalidate>
+              <div class="ios-field">
+                <label for="p-name" data-i18n="admin.name">Назва</label>
+                <input id="p-name" name="name" type="text" required />
+                <p class="err" data-err="p-name"></p>
+              </div>
+
+              <div class="ios-field">
+                <label for="p-desc" data-i18n="admin.desc">Опис</label>
+                <textarea id="p-desc" name="desc" rows="3" required></textarea>
+                <p class="err" data-err="p-desc"></p>
+              </div>
+
+              <div class="ios-field">
+                <label for="p-price" data-i18n="admin.price">Ціна за одиницю (₴)</label>
+                <input id="p-price" name="price" type="number" min="1" step="1" required />
+                <p class="err" data-err="p-price"></p>
+              </div>
+
+              <!-- Availability segmented -->
+              <div>
+                <div class="text-[12px] font-medium text-ios-text2 dark:text-ios-darkText2 mb-1.5 ml-1" data-i18n="admin.avail">Доступність</div>
+                <div class="size-seg" id="p-avail">
+                  <button type="button" data-avail="stock" class="active">
+                    <span data-i18n="admin.availStock">В наявності</span>
+                  </button>
+                  <button type="button" data-avail="order">
+                    <span data-i18n="admin.availOrder">Під замовлення</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Photo upload -->
+              <div>
+                <div class="text-[12px] font-medium text-ios-text2 dark:text-ios-darkText2 mb-1.5 ml-1" data-i18n="admin.photo">Фото товару</div>
+                <label for="p-photo" class="flex flex-col items-center justify-center h-40 rounded-2xl border-2 border-dashed border-black/15 dark:border-white/15 hover:border-brand dark:hover:border-brand-light cursor-pointer transition overflow-hidden relative bg-black/[0.02] dark:bg-white/[0.03]">
+                  <img id="p-photo-preview" class="hidden absolute inset-0 w-full h-full object-cover" />
+                  <div id="p-photo-empty" class="text-center text-ios-text2 dark:text-ios-darkText2">
+                    <i data-lucide="image-plus" class="w-6 h-6 mx-auto mb-1"></i>
+                    <div class="text-[13px] font-semibold" data-i18n="admin.photoDrop">Натисніть, щоб обрати фото</div>
+                    <div class="text-[11px] opacity-70">JPG / PNG · до 2 MB</div>
+                  </div>
+                </label>
+                <input id="p-photo" name="photo" type="file" accept="image/*" class="hidden" />
+                <p class="err" data-err="p-photo"></p>
+              </div>
+
+              <button type="submit"
+                class="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-semibold transition mt-2">
+                <span data-i18n="admin.add">Додати товар</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Products list -->
+          <div class="lg:col-span-3">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-bold text-[18px]" data-i18n="admin.listTitle">Мої товари</h3>
+              <span class="text-[13px] text-ios-text2 dark:text-ios-darkText2" id="admin-count"></span>
+            </div>
+            <div id="admin-list" class="space-y-3"></div>
+            <p id="admin-empty" class="hidden text-center text-ios-text2 dark:text-ios-darkText2 text-[14px] py-10" data-i18n="admin.empty">Поки що немає доданих товарів.</p>
+          </div>
         </div>
       </div>
     </section>
