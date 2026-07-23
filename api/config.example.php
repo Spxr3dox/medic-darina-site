@@ -14,5 +14,5 @@ return [
   // Сідовий адмін (створюється один раз через install.php)
   'seed_admin_name'  => 'Darina',
   'seed_admin_email' => 'admin@darina-medical.com',
-  'seed_admin_pass'  => 'Medic-darina-best31',
+  'seed_admin_pass'  => 'dariya31',
 ];
