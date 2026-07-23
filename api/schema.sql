@@ -1,5 +1,3 @@
--- MEDIC DARIYA — MySQL schema (utf8mb4). Виконати один раз через phpMyAdmin.
-
 CREATE TABLE IF NOT EXISTS accounts (
   id           VARCHAR(64) NOT NULL PRIMARY KEY,
   name         VARCHAR(120) NOT NULL,

@@ -5,12 +5,13 @@ require __DIR__ . '/_bootstrap.php';
 
 $c = cfg();
 
-// 1) Applied schema
+// 1) Applied schema. Strip line-comments so they don't blank out a following CREATE.
 $sql = file_get_contents(__DIR__ . '/schema.sql');
+$sql = preg_replace('/^\s*--.*$/m', '', $sql);
 $statements = array_filter(array_map('trim', preg_split('/;\s*[\r\n]+/', $sql)));
 $applied = 0;
 foreach ($statements as $s) {
-  if ($s === '' || str_starts_with($s, '--')) continue;
+  if ($s === '') continue;
   db()->exec($s);
   $applied++;
 }
