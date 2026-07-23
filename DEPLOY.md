@@ -1,115 +1,113 @@
-# MEDIC DARIYA — деплой на VPS (cityhost.ua)
+# MEDIC DARIYA — деплой на cityhost.ua (Хостинг 2.0)
 
-Стек: Node.js 20 LTS + Express + SQLite (better-sqlite3) + Nginx + Let's Encrypt.
+Хостинг shared, тому бекенд написано на **PHP + MySQL** — саме те, що працює на cityhost без VPS.
 
-Усі команди виконуються під root або через `sudo`. Домен нижче — заміни на свій.
+Один раз треба:
+1. Створити MySQL-базу
+2. Прописати її дані у `api/config.php`
+3. Залити всі файли по FTP
+4. Відкрити `https://medicdariya.com/api/install.php` (одноразовий інсталер)
 
-```
-DOMAIN=medic-dariya.example
-```
+## 1. Створити MySQL-базу
 
-## 1. Node 20 LTS
+Кабінет cityhost → **Хостинг 2.0** → тариф `ch9da1d325` → вкладка **«Бази даних»** → **«Створити базу»**.
 
-```bash
-curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-apt-get install -y nodejs build-essential python3
-node -v   # v20.x
-```
+- Назва бази: наприклад `ch9da1d325_medic`
+- Користувач: `ch9da1d325_medic`
+- Пароль: згенеруй новий і **збережи**
 
-## 2. Клонуємо код
+Після створення система покаже:
+- host (зазвичай `localhost`)
+- назва бази
+- користувач
+- пароль
 
-```bash
-apt-get install -y git
-mkdir -p /var/www && cd /var/www
-git clone https://github.com/Spxr3dox/medic-darina-site.git medic-dariya
-cd medic-dariya/server
-npm install --omit=dev
-```
+Ці 4 значення потрібні для наступного кроку.
 
-`better-sqlite3` підтягне prebuild для Node 20 без компіляції.
+## 2. Налаштувати `api/config.php`
 
-## 3. Перший запуск
+У локальній копії сайту:
 
 ```bash
-node server.js
-# → [db] seeded admin account: admin@darina-medical.com
-# → [medic-dariya] listening on http://127.0.0.1:3000
+cp api/config.example.php api/config.php
 ```
 
-Оборви `Ctrl+C` — далі pm2.
+Відкрий `api/config.php` у редакторі та підстав дані з попереднього кроку:
 
-## 4. pm2 (авто-старт при ребуті)
-
-```bash
-npm i -g pm2
-cd /var/www/medic-dariya/server
-pm2 start server.js --name medic-dariya
-pm2 save
-pm2 startup systemd -u root --hp /root   # виконай команду, яку виведе
+```php
+'db_host' => 'localhost',
+'db_name' => 'ch9da1d325_medic',
+'db_user' => 'ch9da1d325_medic',
+'db_pass' => 'ТУТ_ПАРОЛЬ_БАЗИ',
 ```
 
-## 5. Nginx reverse proxy
+**Не комітити** цей файл у git — він у `.gitignore`.
 
-```bash
-apt-get install -y nginx
-cat >/etc/nginx/sites-available/medic-dariya <<EOF
-server {
-  listen 80;
-  server_name $DOMAIN;
+## 3. Залити файли на хостинг
 
-  client_max_body_size 12M;
+Кабінет cityhost → **Хостинг 2.0** → `ch9da1d325` → **«Файловий менеджер»** (або по FTP).
 
-  location / {
-    proxy_pass http://127.0.0.1:3000;
-    proxy_http_version 1.1;
-    proxy_set_header Host \$host;
-    proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto \$scheme;
-  }
+Root сайту у cityhost — папка `public_html/` (або `www/`). Заливай туди все з `/home/spaxer/Стільниця/sites/medic-dariya/`:
+
+```
+public_html/
+├── index.html
+├── app.js
+├── styles.css
+├── assets/
+├── api/           ← весь вміст, включно з config.php
+└── uploads/       ← порожня, права запису (755 або 775)
+```
+
+Уваги:
+- Папка `uploads/` мусить мати права на запис (chmod 755, а якщо PHP-FPM бунтує — 775).
+- Не заливати `.git/`, `README.md`, `DEPLOY.md` — це для розробки.
+
+## 4. Запустити інсталер
+
+Відкрий у браузері:
+
+```
+https://medicdariya.com/api/install.php
+```
+
+Побачиш JSON типу:
+
+```json
+{
+  "ok": true,
+  "statements_applied": 6,
+  "admin_seeded": true,
+  "admin_email": "admin@darina-medical.com",
+  "uploads_dir_ok": true
 }
-EOF
-ln -sf /etc/nginx/sites-available/medic-dariya /etc/nginx/sites-enabled/medic-dariya
-nginx -t && systemctl reload nginx
 ```
 
-Тепер сайт відкриється по HTTP.
+Якщо `admin_seeded: true` — сідовий адмін створений (`admin@darina-medical.com` / `Medic-darina-best31`).
 
-## 6. SSL (Let's Encrypt)
+**Після цього видали `api/install.php` через файловий менеджер!**
 
-```bash
-apt-get install -y certbot python3-certbot-nginx
-certbot --nginx -d $DOMAIN --agree-tos -m admin@darina-medical.com --redirect
-```
+## 5. Перевірка
 
-Certbot сам додасть redirect з HTTP на HTTPS і поставить auto-renew.
+- Відкрий сайт: `https://medicdariya.com/`
+- Увійди як адмін
+- Додай товар — він повинен зʼявитися на іншому пристрої в іншому браузері.
 
-## 7. Оновлення (при пуші в GitHub)
+## Оновлення
 
-```bash
-cd /var/www/medic-dariya
-git pull
-cd server && npm install --omit=dev
-pm2 restart medic-dariya
-```
+При зміні коду:
+- Залий по FTP тільки змінені файли (`app.js`, або якийсь `api/*.php`).
+- `config.php` і базу не чіпати.
 
-## 8. Дані
+## Резервне копіювання
 
-- SQLite: `/var/www/medic-dariya/server/data.sqkite` — бекапити разом із:
-- Uploads: `/var/www/medic-dariya/server/uploads/`
+- **База**: у phpMyAdmin (кабінет cityhost) → експорт SQL.
+- **Uploads**: скачати папку `uploads/` по FTP.
 
-Приклад бекапу по cron:
-
-```bash
-0 3 * * * tar -czf /root/backups/md-$(date +%F).tgz -C /var/www/medic-dariya/server data.sqlite uploads
-```
-
-## 9. Скидання адміна
+## Скидання пароля адміна
 
 Якщо забула пароль:
-
-```bash
-sqlite3 /var/www/medic-dariya/server/data.sqlite \
-  "DELETE FROM accounts WHERE email='admin@darina-medical.com';"
-pm2 restart medic-dariya   # re-seeds
-```
+1. Відкрити phpMyAdmin через кабінет.
+2. Таблиця `accounts` → знайти рядок з `email = 'admin@darina-medical.com'` → видалити.
+3. Знову відкрити `https://medicdariya.com/api/install.php` (тимчасово залити його назад) — сідовий адмін відновиться з дефолтним паролем.
+4. Видалити `install.php`.

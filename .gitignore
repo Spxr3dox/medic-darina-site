@@ -3,3 +3,8 @@ node_modules/
 .vscode/
 .idea/
 *.log
+
+api/config.php
+uploads/*
+!uploads/.gitkeep
+!uploads/.htaccess

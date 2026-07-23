@@ -1,0 +1,5 @@
+# Забороняємо виконання PHP/скриптів у папці завантажень
+<FilesMatch "\.(php|phtml|phar|pl|py|cgi|sh)$">
+  Require all denied
+</FilesMatch>
+Options -ExecCGI

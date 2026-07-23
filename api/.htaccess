@@ -1,0 +1,14 @@
+# Пропустити Authorization header до PHP (важливо для CGI/FastCGI)
+RewriteEngine On
+RewriteCond %{HTTP:Authorization} .+
+RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Не кешувати відповіді API
+<IfModule mod_headers.c>
+  Header set Cache-Control "no-store, must-revalidate"
+</IfModule>
+
+# Заборонити доступ до внутрішніх файлів
+<FilesMatch "^(config\.php|config\.example\.php|_bootstrap\.php|schema\.sql)$">
+  Require all denied
+</FilesMatch>
