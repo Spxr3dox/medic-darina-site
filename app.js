@@ -56,6 +56,13 @@ const translations = {
     'auth.submit': 'Створити акаунт', 'auth.submitIn': 'Увійти', 'auth.back': 'Назад',
     'auth.signout': 'Вийти', 'auth.goShop': 'До магазину', 'auth.goAdmin': 'Адмін-панель',
     'auth.roleAdmin': 'Адміністратор',
+    'auth.forgot': 'Забули пароль?',
+    'auth.forgotPrompt': 'Введіть пошту, на яку зареєстровано акаунт:',
+    'auth.forgotSent': 'Якщо цей email зареєстрований, ми надіслали на нього лист із посиланням для відновлення. Перевірте пошту (в т.ч. папку «Спам»).',
+    'reset.title': 'Новий пароль', 'reset.sub': 'Придумайте новий пароль для входу.',
+    'reset.submit': 'Зберегти новий пароль',
+    'auth.resetOk': 'Пароль оновлено. Тепер можете увійти з новим паролем.',
+    'auth.resetInvalid': 'Посилання для відновлення недійсне або застаріло. Спробуйте ще раз.',
 
     'err.name': "Введіть ім'я", 'err.email': 'Некоректна пошта',
     'err.pass': 'Мінімум 6 символів', 'err.pass2': 'Паролі не збігаються',
@@ -170,6 +177,13 @@ const translations = {
     'auth.submit': 'Create account', 'auth.submitIn': 'Sign in', 'auth.back': 'Back',
     'auth.signout': 'Sign out', 'auth.goShop': 'Go to shop', 'auth.goAdmin': 'Admin panel',
     'auth.roleAdmin': 'Administrator',
+    'auth.forgot': 'Forgot password?',
+    'auth.forgotPrompt': 'Enter the email your account is registered with:',
+    'auth.forgotSent': 'If this email is registered, we\'ve sent a reset link. Please check your inbox (and Spam).',
+    'reset.title': 'New password', 'reset.sub': 'Choose a new password to sign in.',
+    'reset.submit': 'Save new password',
+    'auth.resetOk': 'Password updated. You can now sign in with the new one.',
+    'auth.resetInvalid': 'Reset link is invalid or expired. Please try again.',
 
     'err.name': 'Please enter your name', 'err.email': 'Invalid email',
     'err.pass': 'At least 6 characters', 'err.pass2': 'Passwords do not match',
@@ -262,6 +276,8 @@ const API = {
   signout: () => API.req('/api/auth.php?action=signout', { method: 'POST' }),
   me: () => API.req('/api/auth.php?action=me'),
   patchMe: (body) => API.req('/api/auth.php?action=updateMe', { method: 'POST', body }),
+  forgot: (body) => API.req('/api/auth.php?action=forgot', { method: 'POST', body }),
+  reset: (body) => API.req('/api/auth.php?action=reset', { method: 'POST', body }),
   products: () => API.req('/api/products.php'),
   addProduct: (body) => API.req('/api/products.php?action=add', { method: 'POST', body }),
   updateProduct: (id, body) => API.req('/api/products.php?action=update&id=' + encodeURIComponent(id), { method: 'POST', body }),
@@ -377,6 +393,7 @@ function updateDOM() {
   renderHelloUser();
   renderCabinet();
   renderAuthMode();
+  updateResetPanel();
   renderAdminList();
   renderAdminOrders();
   renderNews();
@@ -432,6 +449,12 @@ function pageTitle(page) {
 
 function handleHashChange() {
   const raw = (location.hash || '#home').slice(1);
+  // Reset-password link: показуємо сторінку auth і панель зміни пароля
+  if (raw.startsWith('reset')) {
+    go('auth', { silent: true });
+    updateResetPanel();
+    return;
+  }
   go(raw || 'home', { silent: true });
 }
 
@@ -503,6 +526,9 @@ function renderAuthMode() {
     el.classList.toggle('hidden', el.getAttribute('data-only') !== state.authMode);
   });
 
+  const forgotBtn = document.getElementById('btn-forgot');
+  if (forgotBtn) forgotBtn.classList.toggle('hidden', state.authMode !== 'signin');
+
   const heading = document.getElementById('auth-heading');
   const sub = document.getElementById('auth-sub');
   const submitLabel = document.getElementById('auth-submit-label');
@@ -567,6 +593,65 @@ async function handleSignin(fd) {
   }
 }
 
+async function handleForgotPassword() {
+  const emailField = document.querySelector('#auth-form [name="email"]');
+  const preset = emailField ? (emailField.value || '').trim() : '';
+  const email = (prompt(t('auth.forgotPrompt'), preset) || '').trim().toLowerCase();
+  if (!email) return;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast(t('err.email')); return; }
+  try {
+    await API.forgot({ email });
+    alert(t('auth.forgotSent'));
+  } catch (e) {
+    alert(t('auth.forgotSent')); // навмисно те саме — не розголошуємо існування email
+  }
+}
+
+function getResetTokenFromHash() {
+  const h = location.hash || '';
+  const m = h.match(/^#reset\?token=([^&]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+async function handleResetSubmit(e) {
+  e.preventDefault();
+  const form = e.currentTarget;
+  const fd = new FormData(form);
+  const pass = fd.get('password') || '';
+  const pass2 = fd.get('password2') || '';
+  let ok = true;
+  if (String(pass).length < 6) { setFieldError('r-pass', 'err.pass'); ok = false; } else setFieldError('r-pass', null);
+  if (pass !== pass2 || !pass2) { setFieldError('r-pass2', 'err.pass2'); ok = false; } else setFieldError('r-pass2', null);
+  if (!ok) return;
+
+  const token = getResetTokenFromHash();
+  if (!token) { alert(t('auth.resetInvalid')); return; }
+
+  try {
+    await API.reset({ token, password: pass });
+    alert(t('auth.resetOk'));
+    location.hash = '#auth';
+    state.authMode = 'signin';
+    renderAuthMode();
+    updateResetPanel();
+  } catch (err) {
+    alert(t('auth.resetInvalid'));
+  }
+}
+
+function updateResetPanel() {
+  const token = getResetTokenFromHash();
+  const resetCard = document.getElementById('reset-form-card');
+  const formCard = document.getElementById('auth-form-card');
+  if (!resetCard || !formCard) return;
+  if (token && !state.user) {
+    resetCard.classList.remove('hidden');
+    formCard.classList.add('hidden');
+  } else {
+    resetCard.classList.add('hidden');
+  }
+}
+
 async function signOut() {
   try { await API.signout(); } catch {}
   API.setToken(null);
@@ -597,6 +682,9 @@ function bindAuth() {
 
   document.getElementById('btn-signout').addEventListener('click', signOut);
   document.getElementById('btn-admin-enter').addEventListener('click', () => go('admin'));
+
+  document.getElementById('btn-forgot')?.addEventListener('click', handleForgotPassword);
+  document.getElementById('reset-form')?.addEventListener('submit', handleResetSubmit);
 
   // Show / hide password toggles
   document.querySelectorAll('[data-toggle-pw]').forEach(btn => {

@@ -66,4 +66,75 @@ if ($method === 'POST' && $action === 'updateMe') {
   json_out(['user' => serialize_account($st->fetch())]);
 }
 
+if ($method === 'POST' && $action === 'forgot') {
+  $b = body_json();
+  $email = strtolower(trim((string) ($b['email'] ?? '')));
+  if ($email === '') json_err('missing_fields');
+  $st = db()->prepare('SELECT id, name, email FROM accounts WHERE email = ?');
+  $st->execute([$email]);
+  $acc = $st->fetch();
+  // ЗАВЖДИ повертаємо ok, щоб не розголошувати чи email існує в базі
+  if (!$acc) json_out(['ok' => true]);
+
+  // Прибираємо старі невикористані токени користувача
+  db()->prepare('DELETE FROM password_resets WHERE account_id = ? AND used_at IS NULL')->execute([$acc['id']]);
+
+  $token = new_id('r_');
+  $expires = now_ms() + 60 * 60 * 1000; // 1 година
+  db()->prepare(
+    'INSERT INTO password_resets (token, account_id, expires_at, created_at) VALUES (?, ?, ?, ?)'
+  )->execute([$token, $acc['id'], $expires, now_ms()]);
+
+  // Формуємо URL з токеном (використовуємо HTTPS + Host заголовок)
+  $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+  $host = $_SERVER['HTTP_HOST'] ?? 'medicdariya.com';
+  $link = $scheme . '://' . $host . '/#reset?token=' . rawurlencode($token);
+
+  $subject = 'MEDIC DARIYA — відновлення пароля';
+  $body =
+    "Вітаємо, {$acc['name']}!\r\n\r\n" .
+    "Ви (або хтось від вашого імені) запросили відновлення пароля до вашого акаунту MEDIC DARIYA.\r\n" .
+    "Щоб задати новий пароль, перейдіть за посиланням протягом 1 години:\r\n\r\n" .
+    "$link\r\n\r\n" .
+    "Якщо ви не запитували відновлення — просто проігноруйте цей лист, ваш пароль лишиться без змін.\r\n\r\n" .
+    "— MEDIC DARIYA\r\n";
+
+  $from = 'noreply@' . preg_replace('~^www\.~', '', $host);
+  $headers = [
+    'From: MEDIC DARIYA <' . $from . '>',
+    'Reply-To: ' . $from,
+    'Content-Type: text/plain; charset=utf-8',
+    'MIME-Version: 1.0',
+    'X-Mailer: PHP/' . PHP_VERSION,
+  ];
+  @mail($acc['email'], '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers));
+
+  json_out(['ok' => true]);
+}
+
+if ($method === 'POST' && $action === 'reset') {
+  $b = body_json();
+  $tok = (string) ($b['token'] ?? '');
+  $newPass = (string) ($b['password'] ?? '');
+  if ($tok === '' || strlen($newPass) < 6) json_err('bad_input');
+
+  $st = db()->prepare(
+    'SELECT r.*, a.email FROM password_resets r JOIN accounts a ON a.id = r.account_id WHERE r.token = ?'
+  );
+  $st->execute([$tok]);
+  $r = $st->fetch();
+  if (!$r) json_err('invalid_token', 400);
+  if ($r['used_at']) json_err('token_used', 400);
+  if ((int) $r['expires_at'] < now_ms()) json_err('token_expired', 400);
+
+  $hash = password_hash($newPass, PASSWORD_BCRYPT);
+  db()->beginTransaction();
+  db()->prepare('UPDATE accounts SET pass_hash = ? WHERE id = ?')->execute([$hash, $r['account_id']]);
+  db()->prepare('UPDATE password_resets SET used_at = ? WHERE token = ?')->execute([now_ms(), $tok]);
+  db()->prepare('DELETE FROM sessions WHERE account_id = ?')->execute([$r['account_id']]);
+  db()->commit();
+
+  json_out(['ok' => true, 'email' => $r['email']]);
+}
+
 json_err('not_found', 404);

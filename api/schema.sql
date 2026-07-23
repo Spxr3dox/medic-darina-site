@@ -55,6 +55,16 @@ CREATE TABLE IF NOT EXISTS orders (
   INDEX idx_orders_created (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS password_resets (
+  token       VARCHAR(64) NOT NULL PRIMARY KEY,
+  account_id  VARCHAR(64) NOT NULL,
+  expires_at  BIGINT NOT NULL,
+  used_at     BIGINT NULL,
+  created_at  BIGINT NOT NULL,
+  CONSTRAINT fk_reset_acc FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
+  INDEX idx_reset_expires (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS presence (
   session_id  VARCHAR(64) NOT NULL PRIMARY KEY,
   account_id  VARCHAR(64) NULL,

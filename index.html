@@ -505,9 +505,42 @@
               <span id="auth-submit-label" data-i18n="auth.submit">Створити акаунт</span>
             </button>
 
+            <button type="button" id="btn-forgot" class="hidden w-full h-10 text-brand dark:text-brand-light font-medium text-[14px] hover:underline">
+              <span data-i18n="auth.forgot">Забули пароль?</span>
+            </button>
+
             <button type="button" data-nav="home"
               class="w-full h-11 rounded-xl text-brand dark:text-brand-light font-medium text-[15px] hover:bg-brand/5 dark:hover:bg-brand/10 transition">
               <span data-i18n="auth.back">Назад</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Reset password panel (shown when URL is #reset?token=...) -->
+        <div id="reset-form-card" class="hidden rounded-[28px] bg-white dark:bg-ios-darkCard shadow-xl shadow-black/5 p-6 sm:p-8 mt-4">
+          <h3 class="font-bold text-[22px]" data-i18n="reset.title">Новий пароль</h3>
+          <p class="text-[14px] text-ios-text2 dark:text-ios-darkText2 mt-1" data-i18n="reset.sub">Придумайте новий пароль для входу.</p>
+          <form id="reset-form" class="space-y-3 mt-4" novalidate>
+            <div class="ios-field has-eye">
+              <label for="r-pass" data-i18n="auth.pass">Пароль</label>
+              <input id="r-pass" name="password" type="password" autocomplete="new-password" />
+              <button type="button" class="pw-eye" data-toggle-pw="r-pass" aria-label="Show password">
+                <svg class="eye-on"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-off hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.77 19.77 0 0 1 4.06-4.94"/><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.86 19.86 0 0 1-2.62 3.53"/><path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+              <p class="err" data-err="r-pass"></p>
+            </div>
+            <div class="ios-field has-eye">
+              <label for="r-pass2" data-i18n="auth.pass2">Підтвердіть пароль</label>
+              <input id="r-pass2" name="password2" type="password" autocomplete="new-password" />
+              <button type="button" class="pw-eye" data-toggle-pw="r-pass2" aria-label="Show password">
+                <svg class="eye-on"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-off hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.77 19.77 0 0 1 4.06-4.94"/><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.86 19.86 0 0 1-2.62 3.53"/><path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+              <p class="err" data-err="r-pass2"></p>
+            </div>
+            <button type="submit" class="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-semibold transition mt-2">
+              <span data-i18n="reset.submit">Зберегти новий пароль</span>
             </button>
           </form>
         </div>
