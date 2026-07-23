@@ -92,6 +92,9 @@ const translations = {
     'cab.orders': 'замовлень', 'cab.spent': 'сума',
     'cab.historyTitle': 'Мої замовлення', 'cab.historyEmpty': 'Ви ще не робили замовлень. Час почати!',
     'cab.namePrompt': 'Нове імʼя:', 'cab.orderStatus': 'В обробці',
+    'cab.credsTitle': 'Дані для входу', 'cab.credEmail': 'Пошта', 'cab.credPass': 'Пароль',
+    'cab.credCopied': 'Скопійовано', 'cab.credNoPass': 'Пароль недоступний. Увійди знову, щоб зберегти його в цьому браузері.',
+    'cab.credsHint': 'Пароль зберігається лише в цьому браузері з моменту останнього входу. З іншого пристрою його не видно.',
 
     'admin.title': 'Адмін-панель', 'admin.sub': 'Керуйте товарами та замовленнями',
     'admin.formTitle': 'Новий товар',
@@ -206,6 +209,9 @@ const translations = {
     'cab.orders': 'orders', 'cab.spent': 'spent',
     'cab.historyTitle': 'My orders', 'cab.historyEmpty': "You haven't placed any orders yet. Let's start!",
     'cab.namePrompt': 'New name:', 'cab.orderStatus': 'Processing',
+    'cab.credsTitle': 'Login details', 'cab.credEmail': 'Email', 'cab.credPass': 'Password',
+    'cab.credCopied': 'Copied', 'cab.credNoPass': 'Password unavailable. Sign in again to save it in this browser.',
+    'cab.credsHint': 'Password is stored only in this browser since your last sign-in. It is not visible from other devices.',
 
     'admin.title': 'Admin panel', 'admin.sub': 'Manage products and orders',
     'admin.formTitle': 'New product',
@@ -530,6 +536,7 @@ async function handleSignup(fd) {
   try {
     const r = await API.signup({ name, email, password: pass });
     API.setToken(r.token);
+    localStorage.setItem('md_pass_plain', pass);
     state.user = r.user;
     await refreshOrders();
     toast(`${t('toast.hello')}, ${name}!`);
@@ -554,6 +561,7 @@ async function handleSignin(fd) {
   try {
     const r = await API.signin({ email, password: pass });
     API.setToken(r.token);
+    localStorage.setItem('md_pass_plain', pass);
     state.user = r.user;
     await refreshOrders();
     toast(t('toast.signedIn'));
@@ -568,6 +576,7 @@ async function handleSignin(fd) {
 async function signOut() {
   try { await API.signout(); } catch {}
   API.setToken(null);
+  localStorage.removeItem('md_pass_plain');
   presenceRemove();
   state.user = null;
   cache.orders = [];
@@ -633,6 +642,32 @@ function bindAuth() {
     renderCabinet();
     presenceHeartbeat();
   });
+
+  // Show/hide password
+  document.getElementById('creds-toggle-pass')?.addEventListener('click', () => {
+    const el = document.getElementById('creds-pass');
+    if (!el) return;
+    const showing = el.dataset.visible === '1';
+    el.dataset.visible = showing ? '0' : '1';
+    const plain = el.dataset.plain || '';
+    el.textContent = !showing && plain ? plain : '••••••••';
+    if (!showing && !plain) toast(t('cab.credNoPass'));
+    const icon = document.querySelector('#creds-toggle-pass i[data-lucide]');
+    if (icon) icon.setAttribute('data-lucide', showing ? 'eye' : 'eye-off');
+    if (window.lucide) window.lucide.createIcons();
+  });
+
+  // Copy email
+  document.getElementById('creds-copy-email')?.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(state.user?.email || ''); toast(t('cab.credCopied')); } catch {}
+  });
+
+  // Copy password
+  document.getElementById('creds-copy-pass')?.addEventListener('click', async () => {
+    const plain = document.getElementById('creds-pass')?.dataset.plain || '';
+    if (!plain) { toast(t('cab.credNoPass')); return; }
+    try { await navigator.clipboard.writeText(plain); toast(t('cab.credCopied')); } catch {}
+  });
 }
 
 // =============================================================================
@@ -647,6 +682,17 @@ function renderCabinet() {
 
   nameEl.textContent = acc.name;
   emailEl.textContent = acc.email;
+
+  // Login credentials block
+  const credsEmail = document.getElementById('creds-email');
+  const credsPass = document.getElementById('creds-pass');
+  if (credsEmail) credsEmail.textContent = acc.email;
+  if (credsPass) {
+    const savedPass = localStorage.getItem('md_pass_plain') || '';
+    credsPass.dataset.plain = savedPass;
+    credsPass.dataset.visible = credsPass.dataset.visible === '1' ? '1' : '0';
+    credsPass.textContent = credsPass.dataset.visible === '1' && savedPass ? savedPass : '••••••••';
+  }
 
   const initials = acc.name.slice(0,2).toUpperCase();
   document.getElementById('signed-avatar-initials').textContent = initials;
