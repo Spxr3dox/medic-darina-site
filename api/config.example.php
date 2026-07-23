@@ -15,4 +15,16 @@ return [
   'seed_admin_name'  => 'Darina',
   'seed_admin_email' => 'admin@darina-medical.com',
   'seed_admin_pass'  => 'dariya31',
+
+  // SMTP для відправки листів (відновлення пароля тощо).
+  // Якщо ключа "smtp" немає — падаємо назад на mail(), що на shared зазвичай мовчки не доходить.
+  // 'smtp' => [
+  //   'host'       => 'mail.medicdariya.com',
+  //   'port'       => 587,               // 465 для SSL, 587 для STARTTLS
+  //   'secure'     => 'tls',             // 'tls' | 'ssl' | ''
+  //   'user'       => 'noreply@medicdariya.com',
+  //   'pass'       => 'ЗАМІНИ_НА_ПАРОЛЬ_СКРИНЬКИ',
+  //   'from_email' => 'noreply@medicdariya.com',
+  //   'from_name'  => 'MEDIC DARIYA',
+  // ],
 ];

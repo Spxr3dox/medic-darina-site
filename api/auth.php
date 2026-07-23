@@ -100,14 +100,34 @@ if ($method === 'POST' && $action === 'forgot') {
     "— MEDIC DARIYA\r\n";
 
   $from = 'noreply@' . preg_replace('~^www\.~', '', $host);
-  $headers = [
-    'From: MEDIC DARIYA <' . $from . '>',
-    'Reply-To: ' . $from,
-    'Content-Type: text/plain; charset=utf-8',
-    'MIME-Version: 1.0',
-    'X-Mailer: PHP/' . PHP_VERSION,
-  ];
-  @mail($acc['email'], '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers));
+  $c = cfg();
+  $smtp = $c['smtp'] ?? null;
+
+  if (is_array($smtp) && !empty($smtp['host'])) {
+    require_once __DIR__ . '/_smtp.php';
+    smtp_send([
+      'host' => $smtp['host'],
+      'port' => $smtp['port'] ?? 587,
+      'user' => $smtp['user'] ?? '',
+      'pass' => $smtp['pass'] ?? '',
+      'secure' => $smtp['secure'] ?? 'tls',
+      'ehlo' => $host,
+      'from_email' => $smtp['from_email'] ?? $smtp['user'] ?? $from,
+      'from_name' => $smtp['from_name'] ?? 'MEDIC DARIYA',
+      'to' => $acc['email'],
+      'subject' => $subject,
+      'body' => $body,
+    ]);
+  } else {
+    $headers = [
+      'From: MEDIC DARIYA <' . $from . '>',
+      'Reply-To: ' . $from,
+      'Content-Type: text/plain; charset=utf-8',
+      'MIME-Version: 1.0',
+      'X-Mailer: PHP/' . PHP_VERSION,
+    ];
+    @mail($acc['email'], '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers));
+  }
 
   json_out(['ok' => true]);
 }
