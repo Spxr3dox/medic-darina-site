@@ -1103,13 +1103,8 @@
   </div>
 
   <script>
-    // Dynamic cache-buster: forces every visit to fetch a fresh app.js,
-    // even if the browser cached index.html from earlier.
-    (function () {
-      var s = document.createElement('script');
-      s.src = 'app.js?v=' + Date.now();
-      document.body.appendChild(s);
-    })();
+    // Dynamic cache-buster (synchronous — must not delay DOMContentLoaded).
+    document.write('<script src="app.js?v=' + Date.now() + '"><\/script>');
   </script>
 </body>
 </html>

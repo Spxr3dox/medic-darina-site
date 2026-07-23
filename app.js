@@ -1684,4 +1684,5 @@ async function boot() {
     if (state.currentPage === 'admin') { renderAdminList(); renderAdminOrders(); }
   }, 15000);
 }
-document.addEventListener('DOMContentLoaded', boot);
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
