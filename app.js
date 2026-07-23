@@ -85,7 +85,7 @@ const translations = {
 
     'toast.added': 'Додано до кошика', 'toast.hello': 'Ласкаво просимо',
     'toast.signedIn': 'Успішний вхід', 'toast.signedOut': 'Ви вийшли з акаунту',
-    'toast.productAdded': 'Товар додано в магазин', 'toast.productRemoved': 'Товар видалено',
+    'toast.productAdded': 'Товар додано в магазин', 'toast.productRemoved': 'Товар видалено', 'toast.productUpdated': 'Товар оновлено',
     'toast.avatarUpdated': 'Аватар оновлено', 'toast.nameUpdated': "Ім'я оновлено",
     'toast.orderPlaced': 'Замовлення оформлено',
 
@@ -94,7 +94,7 @@ const translations = {
     'cab.namePrompt': 'Нове імʼя:', 'cab.orderStatus': 'В обробці', 'cab.orderNo': 'Замовлення №',
 
     'admin.title': 'Адмін-панель', 'admin.sub': 'Керуйте товарами та замовленнями',
-    'admin.formTitle': 'Новий товар',
+    'admin.formTitle': 'Новий товар', 'admin.editTitle': 'Редагування товару', 'admin.submit': 'Додати товар', 'admin.saveChanges': 'Зберегти зміни',
     'admin.name': 'Назва', 'admin.desc': 'Опис', 'admin.price': 'Ціна за одиницю (₴)',
     'admin.avail': 'Доступність', 'admin.availStock': 'В наявності', 'admin.availOrder': 'Під замовлення',
     'admin.photo': 'Фото товару', 'admin.photoDrop': 'Натисніть, щоб обрати фото',
@@ -199,7 +199,7 @@ const translations = {
 
     'toast.added': 'Added to cart', 'toast.hello': 'Welcome',
     'toast.signedIn': 'Signed in', 'toast.signedOut': 'Signed out',
-    'toast.productAdded': 'Product added to shop', 'toast.productRemoved': 'Product removed',
+    'toast.productAdded': 'Product added to shop', 'toast.productRemoved': 'Product removed', 'toast.productUpdated': 'Product updated',
     'toast.avatarUpdated': 'Avatar updated', 'toast.nameUpdated': 'Name updated',
     'toast.orderPlaced': 'Order placed',
 
@@ -208,7 +208,7 @@ const translations = {
     'cab.namePrompt': 'New name:', 'cab.orderStatus': 'Processing', 'cab.orderNo': 'Order #',
 
     'admin.title': 'Admin panel', 'admin.sub': 'Manage products and orders',
-    'admin.formTitle': 'New product',
+    'admin.formTitle': 'New product', 'admin.editTitle': 'Edit product', 'admin.submit': 'Add product', 'admin.saveChanges': 'Save changes',
     'admin.name': 'Title', 'admin.desc': 'Description', 'admin.price': 'Price per unit (UAH)',
     'admin.avail': 'Availability', 'admin.availStock': 'In stock', 'admin.availOrder': 'On order',
     'admin.photo': 'Product photo', 'admin.photoDrop': 'Click to choose a photo',
@@ -264,6 +264,7 @@ const API = {
   patchMe: (body) => API.req('/api/auth.php?action=updateMe', { method: 'POST', body }),
   products: () => API.req('/api/products.php'),
   addProduct: (body) => API.req('/api/products.php?action=add', { method: 'POST', body }),
+  updateProduct: (id, body) => API.req('/api/products.php?action=update&id=' + encodeURIComponent(id), { method: 'POST', body }),
   delProduct: (id) => API.req('/api/products.php?action=delete&id=' + encodeURIComponent(id), { method: 'POST' }),
   news: () => API.req('/api/news.php'),
   addNews: (body) => API.req('/api/news.php?action=add', { method: 'POST', body }),
@@ -323,6 +324,7 @@ const state = {
   adminCategory: 'scrubs',
   adminGender: 'unisex',
   adminBrand: '',
+  adminEditingId: null,
   shopAvail: 'all',      // 'all' | 'stock' | 'order'
   shopCat: 'all',        // 'all' | category id
   shopGender: 'all',     // 'all' | 'female' | 'male' | 'unisex'
@@ -1082,9 +1084,9 @@ function toast(msg) {
 // 13. Admin
 // =============================================================================
 function bindAdmin() {
-  document.getElementById('btn-open-add').addEventListener('click', openAddSheet);
-  document.getElementById('add-sheet-backdrop').addEventListener('click', closeAddSheet);
-  document.getElementById('add-sheet-cancel').addEventListener('click', closeAddSheet);
+  document.getElementById('btn-open-add').addEventListener('click', () => { resetAdminForm(); openAddSheet(); });
+  document.getElementById('add-sheet-backdrop').addEventListener('click', () => { closeAddSheet(); resetAdminForm(); });
+  document.getElementById('add-sheet-cancel').addEventListener('click', () => { closeAddSheet(); resetAdminForm(); });
 
   document.querySelectorAll('#p-avail button').forEach(b => {
     b.addEventListener('click', () => {
@@ -1181,40 +1183,118 @@ function bindAdmin() {
       sizesTop, sizesBottom, pantsLengths,
       avail: state.adminAvail, photo: state.adminPhotoData,
     };
-    try { await API.addProduct(product); await refreshProducts(); }
-    catch (err) { alert('Не вдалося додати товар: ' + (err.message || err.code)); return; }
+    const isEdit = !!state.adminEditingId;
+    try {
+      if (isEdit) await API.updateProduct(state.adminEditingId, product);
+      else await API.addProduct(product);
+      await refreshProducts();
+    }
+    catch (err) { alert((isEdit ? 'Не вдалося зберегти зміни: ' : 'Не вдалося додати товар: ') + (err.message || err.code)); return; }
 
-    form.reset();
-    state.adminPhotoData = null;
-    state.adminAvail = 'stock';
-    document.querySelectorAll('#p-avail button').forEach((b,i) => b.classList.toggle('active', i === 0));
-    document.querySelectorAll('#p-sizes-top .size-chip, #p-sizes-bottom .size-chip').forEach(el => {
-      const s = el.getAttribute('data-size');
-      el.classList.toggle('active', s === 'S' || s === 'M' || s === 'L');
-    });
-    document.querySelectorAll('#p-pants-len .size-chip').forEach(el => {
-      el.classList.toggle('active', el.getAttribute('data-len') === 'Regular');
-    });
-    document.querySelectorAll('#p-category button').forEach((b) => {
-      b.classList.toggle('active', b.getAttribute('data-cat') === 'scrubs');
-    });
-    state.adminCategory = 'scrubs';
-    document.querySelectorAll('#p-gender button').forEach((b) => {
-      b.classList.toggle('active', b.getAttribute('data-gender') === 'unisex');
-    });
-    state.adminGender = 'unisex';
-    document.querySelectorAll('#p-brand button').forEach((b) => {
-      b.classList.toggle('active', !b.getAttribute('data-brand'));
-    });
-    state.adminBrand = '';
-    document.getElementById('p-photo-preview').classList.add('hidden');
-    document.getElementById('p-photo-empty').classList.remove('hidden');
-
+    resetAdminForm();
     closeAddSheet();
-    toast(t('toast.productAdded'));
+    toast(isEdit ? t('toast.productUpdated') : t('toast.productAdded'));
     renderAdminList();
     renderShop();
   });
+}
+
+function resetAdminForm() {
+  const form = document.getElementById('admin-form');
+  if (form) form.reset();
+  state.adminPhotoData = null;
+  state.adminAvail = 'stock';
+  state.adminCategory = 'scrubs';
+  state.adminGender = 'unisex';
+  state.adminBrand = '';
+  state.adminEditingId = null;
+  document.querySelectorAll('#p-avail button').forEach((b,i) => b.classList.toggle('active', i === 0));
+  document.querySelectorAll('#p-sizes-top .size-chip, #p-sizes-bottom .size-chip').forEach(el => {
+    const s = el.getAttribute('data-size');
+    el.classList.toggle('active', s === 'S' || s === 'M' || s === 'L');
+  });
+  document.querySelectorAll('#p-pants-len .size-chip').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-len') === 'Regular');
+  });
+  document.querySelectorAll('#p-category button').forEach((b) => {
+    b.classList.toggle('active', b.getAttribute('data-cat') === 'scrubs');
+  });
+  document.querySelectorAll('#p-gender button').forEach((b) => {
+    b.classList.toggle('active', b.getAttribute('data-gender') === 'unisex');
+  });
+  document.querySelectorAll('#p-brand button').forEach((b) => {
+    b.classList.toggle('active', !b.getAttribute('data-brand'));
+  });
+  document.getElementById('p-photo-preview')?.classList.add('hidden');
+  document.getElementById('p-photo-empty')?.classList.remove('hidden');
+  const sheetTitle = document.getElementById('add-sheet-title');
+  if (sheetTitle) sheetTitle.textContent = t('admin.formTitle');
+  const submitBtn = document.getElementById('admin-submit');
+  if (submitBtn) submitBtn.textContent = t('admin.submit');
+}
+
+function openEditProduct(id) {
+  const p = allProducts().find(x => x.id === id);
+  if (!p) return;
+  resetAdminForm();
+  state.adminEditingId = id;
+
+  const form = document.getElementById('admin-form');
+  form.querySelector('[name="name"]').value = p.title || '';
+  form.querySelector('[name="desc"]').value = p.desc || '';
+  form.querySelector('[name="price"]').value = p.price || '';
+  const oldPriceField = form.querySelector('[name="oldPrice"]');
+  if (oldPriceField) oldPriceField.value = p.oldPrice ?? '';
+  const skuField = form.querySelector('[name="sku"]');
+  if (skuField) skuField.value = p.sku || '';
+  const colorField = form.querySelector('[name="color"]');
+  if (colorField) colorField.value = p.color || '';
+
+  state.adminAvail = p.avail || 'stock';
+  document.querySelectorAll('#p-avail button').forEach((b) => {
+    b.classList.toggle('active', b.getAttribute('data-avail') === state.adminAvail);
+  });
+
+  state.adminCategory = p.category || 'scrubs';
+  document.querySelectorAll('#p-category button').forEach((b) => {
+    b.classList.toggle('active', b.getAttribute('data-cat') === state.adminCategory);
+  });
+  state.adminGender = p.gender || 'unisex';
+  document.querySelectorAll('#p-gender button').forEach((b) => {
+    b.classList.toggle('active', b.getAttribute('data-gender') === state.adminGender);
+  });
+  state.adminBrand = p.brand || '';
+  document.querySelectorAll('#p-brand button').forEach((b) => {
+    b.classList.toggle('active', (b.getAttribute('data-brand') || '') === state.adminBrand);
+  });
+
+  const setSizes = (sel, values) => {
+    const set = new Set(values || []);
+    document.querySelectorAll(sel + ' .size-chip').forEach(el => {
+      el.classList.toggle('active', set.has(el.getAttribute('data-size')));
+    });
+  };
+  setSizes('#p-sizes-top', p.sizesTop);
+  setSizes('#p-sizes-bottom', p.sizesBottom);
+  const lens = new Set(p.pantsLengths || []);
+  document.querySelectorAll('#p-pants-len .size-chip').forEach(el => {
+    el.classList.toggle('active', lens.has(el.getAttribute('data-len')));
+  });
+
+  if (p.photo) {
+    state.adminPhotoData = p.photo;
+    const preview = document.getElementById('p-photo-preview');
+    preview.src = p.photo;
+    preview.classList.remove('hidden');
+    document.getElementById('p-photo-empty').classList.add('hidden');
+  }
+
+  const sheetTitle = document.getElementById('add-sheet-title');
+  if (sheetTitle) sheetTitle.textContent = t('admin.editTitle');
+  const submitBtn = document.getElementById('admin-submit');
+  if (submitBtn) submitBtn.textContent = t('admin.saveChanges');
+
+  openAddSheet();
 }
 
 function renderAdminList() {
@@ -1248,6 +1328,11 @@ function renderAdminList() {
           <div class="font-semibold truncate">${escapeHTML(title)}</div>
           <div class="text-[12.5px] text-ios-text2 dark:text-ios-darkText2 line-clamp-1">${desc}</div>
         </div>
+        <button data-edit="${p.id}"
+          class="shrink-0 w-9 h-9 rounded-full bg-brand/10 hover:bg-brand/20 text-brand dark:text-brand-light flex items-center justify-center transition"
+          aria-label="Edit">
+          <i data-lucide="pencil" class="w-4 h-4"></i>
+        </button>
         <button data-del="${p.id}" data-builtin="${p.builtin ? '1' : '0'}"
           class="shrink-0 w-9 h-9 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center transition"
           aria-label="Delete">
@@ -1256,6 +1341,9 @@ function renderAdminList() {
       </div>`;
   }).join('');
 
+  list.querySelectorAll('[data-edit]').forEach(btn => {
+    btn.addEventListener('click', () => openEditProduct(btn.getAttribute('data-edit')));
+  });
   list.querySelectorAll('[data-del]').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = btn.getAttribute('data-del');
