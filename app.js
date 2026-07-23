@@ -91,7 +91,7 @@ const translations = {
 
     'cab.orders': 'замовлень', 'cab.spent': 'сума',
     'cab.historyTitle': 'Мої замовлення', 'cab.historyEmpty': 'Ви ще не робили замовлень. Час почати!',
-    'cab.namePrompt': 'Нове імʼя:', 'cab.orderStatus': 'В обробці',
+    'cab.namePrompt': 'Нове імʼя:', 'cab.orderStatus': 'В обробці', 'cab.orderNo': 'Замовлення №',
 
     'admin.title': 'Адмін-панель', 'admin.sub': 'Керуйте товарами та замовленнями',
     'admin.formTitle': 'Новий товар',
@@ -205,7 +205,7 @@ const translations = {
 
     'cab.orders': 'orders', 'cab.spent': 'spent',
     'cab.historyTitle': 'My orders', 'cab.historyEmpty': "You haven't placed any orders yet. Let's start!",
-    'cab.namePrompt': 'New name:', 'cab.orderStatus': 'Processing',
+    'cab.namePrompt': 'New name:', 'cab.orderStatus': 'Processing', 'cab.orderNo': 'Order #',
 
     'admin.title': 'Admin panel', 'admin.sub': 'Manage products and orders',
     'admin.formTitle': 'New product',
@@ -678,6 +678,10 @@ function renderCabinet() {
   if (window.lucide) window.lucide.createIcons();
 }
 
+function shortOrderId(id) {
+  return String(id || '').replace(/[^A-Za-z0-9]/g, '').slice(-6).toUpperCase() || '------';
+}
+
 function renderOrderCard(o) {
   const d = new Date(o.createdAt);
   const dateStr = d.toLocaleString(state.lang === 'ua' ? 'uk-UA' : 'en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -688,7 +692,7 @@ function renderOrderCard(o) {
   return `
     <div class="rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] p-3">
       <div class="flex items-center justify-between gap-2">
-        <div class="text-[12px] font-semibold text-brand dark:text-brand-light">#${o.id}</div>
+        <div class="text-[12px] font-semibold text-brand dark:text-brand-light">${t('cab.orderNo')} ${shortOrderId(o.id)}</div>
         <div class="text-[12px] text-ios-text2 dark:text-ios-darkText2">${dateStr}</div>
       </div>
       <div class="mt-1.5">${itemLines}</div>
@@ -1287,7 +1291,7 @@ function renderAdminOrders() {
         <div class="flex items-center justify-between gap-2 flex-wrap">
           <div class="min-w-0">
             <div class="flex items-center gap-2">
-              <span class="text-[12px] font-semibold text-brand dark:text-brand-light">#${o.id}</span>
+              <span class="text-[12px] font-semibold text-brand dark:text-brand-light">№${shortOrderId(o.id)}</span>
               <span class="text-[12px] text-ios-text2 dark:text-ios-darkText2">${dateStr}</span>
             </div>
             <div class="font-semibold truncate mt-0.5">${escapeHTML(o.userName)} · <span class="text-ios-text2 dark:text-ios-darkText2 text-[13px] font-normal">${escapeHTML(o.userEmail)}</span></div>
