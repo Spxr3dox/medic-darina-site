@@ -308,12 +308,7 @@ const state = {
   })(),
 };
 
-const defaultProducts = [
-  { id: 'd1', price: 1650, sizes: ['S','M','L','XL'],   mono: 'DT', pg: 'linear-gradient(135deg,#0d9fb4,#053742)', avail: 'stock', category: 'scrubs', gender: 'female', builtin: true },
-  { id: 'd2', price: 1490, sizes: ['M','L','XL','XXL'], mono: 'CS', pg: 'linear-gradient(135deg,#1e1e28,#3a3a4a)', avail: 'stock', category: 'scrubs', gender: 'male',   builtin: true },
-  { id: 'd3', price: 2100, sizes: ['S','M','L'],        mono: 'PS', pg: 'linear-gradient(135deg,#006675,#003d47)', avail: 'order', category: 'scrubs', gender: 'unisex', builtin: true },
-  { id: 'd4', price: 1250, sizes: ['S','M','L','XL'],   mono: 'CG', pg: 'linear-gradient(135deg,#e0e5ec,#a7b3c1)', avail: 'stock', category: 'gowns',  gender: 'unisex', builtin: true },
-];
+const defaultProducts = [];
 
 const SIZE_ORDER = ['XXS','XS','S','M','L','XL','2XL','3XL','4XL','5XL','6XL'];
 
