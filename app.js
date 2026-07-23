@@ -235,50 +235,77 @@ const translations = {
 };
 
 // =============================================================================
-// 2. "Database" over localStorage
+// 2. API layer (server-backed) + minimal localStorage for UI-only state
 // =============================================================================
+const API_BASE = ''; // same-origin
+const TOKEN_KEY = 'md_token';
+
+const API = {
+  token() { return localStorage.getItem(TOKEN_KEY); },
+  setToken(t) { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); },
+  async req(path, opts = {}) {
+    const headers = { ...(opts.headers || {}) };
+    if (!(opts.body instanceof FormData) && opts.body != null) headers['Content-Type'] = 'application/json';
+    const tok = API.token();
+    if (tok) headers['Authorization'] = 'Bearer ' + tok;
+    const res = await fetch(API_BASE + path, {
+      method: opts.method || 'GET',
+      headers,
+      body: opts.body && !(opts.body instanceof FormData) ? JSON.stringify(opts.body) : opts.body,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw Object.assign(new Error(data.error || 'http_' + res.status), { code: data.error, status: res.status });
+    return data;
+  },
+  signup: (body) => API.req('/api/auth/signup', { method: 'POST', body }),
+  signin: (body) => API.req('/api/auth/signin', { method: 'POST', body }),
+  signout: () => API.req('/api/auth/signout', { method: 'POST' }),
+  me: () => API.req('/api/auth/me'),
+  patchMe: (body) => API.req('/api/auth/me', { method: 'PATCH', body }),
+  products: () => API.req('/api/products'),
+  addProduct: (body) => API.req('/api/products', { method: 'POST', body }),
+  delProduct: (id) => API.req('/api/products/' + encodeURIComponent(id), { method: 'DELETE' }),
+  news: () => API.req('/api/news'),
+  addNews: (body) => API.req('/api/news', { method: 'POST', body }),
+  delNews: (id) => API.req('/api/news/' + encodeURIComponent(id), { method: 'DELETE' }),
+  orders: () => API.req('/api/orders'),
+  addOrder: (body) => API.req('/api/orders', { method: 'POST', body }),
+  presence: (sessionId) => API.req('/api/presence', { method: 'POST', body: { sessionId } }),
+  upload: (file) => { const fd = new FormData(); fd.append('file', file); return API.req('/api/uploads', { method: 'POST', body: fd }); },
+};
+
+// In-memory caches populated from API; localStorage kept only for cart/lang/theme.
+const cache = { products: [], news: [], orders: [] };
+
 const DB = {
   _read(key, fb) { try { return JSON.parse(localStorage.getItem(key)) ?? fb; } catch { return fb; } },
   _write(key, v) { localStorage.setItem(key, JSON.stringify(v)); },
-  accounts:        { get: () => DB._read('md_accounts', []),        set: (v) => DB._write('md_accounts', v) },
-  products_custom: { get: () => DB._read('md_products_custom', []), set: (v) => DB._write('md_products_custom', v) },
-  cart:            { get: () => DB._read('md_cart', []),             set: (v) => DB._write('md_cart', v) },
-  news:            { get: () => DB._read('md_news', []),             set: (v) => DB._write('md_news', v) },
-  deleted_builtins:{ get: () => DB._read('md_deleted_builtins', []), set: (v) => DB._write('md_deleted_builtins', v) },
-  orders:          { get: () => DB._read('md_orders', []),          set: (v) => DB._write('md_orders', v) },
-  session:         { get: () => DB._read('md_session', null),       set: (v) => DB._write('md_session', v) },
-  online:          { get: () => DB._read('md_online', {}),          set: (v) => DB._write('md_online', v) },
+  cart: { get: () => DB._read('md_cart', []), set: (v) => DB._write('md_cart', v) },
+  products_custom: { get: () => cache.products, set: () => {} },
+  news: { get: () => cache.news, set: () => {} },
+  orders: { get: () => cache.orders, set: () => {} },
+  deleted_builtins: { get: () => [], set: () => {} },
+  session: { get: () => null, set: () => {} }, // token is authoritative; user in state.user
 };
 
-async function hashPassword(pass) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+async function refreshProducts() { try { cache.products = (await API.products()).products; } catch {} }
+async function refreshNews()     { try { cache.news     = (await API.news()).news; }         catch {} }
+async function refreshOrders()   {
+  if (!state.user) { cache.orders = []; return; }
+  try { cache.orders = (await API.orders()).orders; } catch {}
+}
+async function refreshMe() {
+  if (!API.token()) { state.user = null; return; }
+  try { const r = await API.me(); state.user = r.user; if (!r.user) API.setToken(null); }
+  catch { state.user = null; API.setToken(null); }
 }
 
-async function seedAdmin() {
-  const accounts = DB.accounts.get();
-  const email = 'admin@darina-medical.com';
-  if (accounts.some(a => a.email === email)) return;
-  const passwordHash = await hashPassword('Medic-darina-best31');
-  accounts.push({ name: 'Darina', email, passwordHash, role: 'admin', avatar: null });
-  DB.accounts.set(accounts);
-}
-
-// Look up the full account record for the current session (has avatar).
-function currentAccount() {
-  if (!state.user) return null;
-  return DB.accounts.get().find(a => a.email === state.user.email) || null;
-}
-
-function updateAccount(patch) {
-  const accounts = DB.accounts.get();
-  const idx = accounts.findIndex(a => a.email === state.user?.email);
-  if (idx === -1) return;
-  accounts[idx] = { ...accounts[idx], ...patch };
-  DB.accounts.set(accounts);
-  // Refresh session snapshot (name only; keep role & email)
-  if (patch.name) state.user.name = patch.name;
-  DB.session.set(state.user);
+function currentAccount() { return state.user; }
+async function updateAccount(patch) {
+  try {
+    const r = await API.patchMe(patch);
+    state.user = r.user;
+  } catch (e) { console.warn('patchMe failed', e); }
 }
 
 // =============================================================================
@@ -289,7 +316,7 @@ const state = {
   theme: localStorage.getItem('md_theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'),
   currentPage: 'home',
   authMode: 'signup',
-  user: DB.session.get(),
+  user: null,
   cart: DB.cart.get(),
   adminPhotoData: null,
   adminAvail: 'stock',
@@ -313,24 +340,10 @@ const defaultProducts = [];
 const SIZE_ORDER = ['XXS','XS','S','M','L','XL','2XL','3XL','4XL','5XL','6XL'];
 
 function allProducts() {
-  const deleted = new Set(DB.deleted_builtins.get());
-  const builtins = defaultProducts.filter(p => !deleted.has(p.id));
-  const custom = DB.products_custom.get().map(p => ({
-    id: p.id, price: p.price, oldPrice: p.oldPrice ?? null,
-    sku: p.sku || '', color: p.color || '', category: p.category || 'scrubs', gender: p.gender || 'unisex', brand: p.brand || '',
-    // Legacy fallback: if a product was saved before we split top/bottom,
-    // reuse its old .sizes as top sizes.
-    sizesTop: Array.isArray(p.sizesTop) ? p.sizesTop : (Array.isArray(p.sizes) ? p.sizes : []),
-    sizesBottom: Array.isArray(p.sizesBottom) ? p.sizesBottom : [],
-    pantsLengths: Array.isArray(p.pantsLengths) ? p.pantsLengths : [],
-    title: p.title, desc: p.desc, photo: p.photo, avail: p.avail, builtin: false,
-  }));
-  return [...builtins, ...custom];
+  return cache.products.map(p => ({ ...p, builtin: false }));
 }
 
-function productTitle(p) {
-  return p.builtin ? t(`prod.${p.id}.title`) : (p.title || '');
-}
+function productTitle(p) { return p.title || ''; }
 
 // =============================================================================
 // 4. i18n render
@@ -514,19 +527,19 @@ async function handleSignup(fd) {
   if (pass !== pass2 || !pass2) { setFieldError('password2', 'err.pass2'); ok = false; } else setFieldError('password2', null);
   if (!ok) return;
 
-  const accounts = DB.accounts.get();
-  if (accounts.some(a => a.email === email)) { setFieldError('email', 'err.exists'); return; }
-
-  const passwordHash = await hashPassword(pass);
-  accounts.push({ name, email, passwordHash, role: 'user', avatar: null });
-  DB.accounts.set(accounts);
-
-  state.user = { name, email, role: 'user' };
-  DB.session.set(state.user);
-  toast(`${t('toast.hello')}, ${name}!`);
-  updateDOM();
-  setTimeout(() => go('auth'), 250);   // → cabinet
-  presenceHeartbeat();
+  try {
+    const r = await API.signup({ name, email, password: pass });
+    API.setToken(r.token);
+    state.user = r.user;
+    await refreshOrders();
+    toast(`${t('toast.hello')}, ${name}!`);
+    updateDOM();
+    setTimeout(() => go('auth'), 250);
+    presenceHeartbeat();
+  } catch (e) {
+    if (e.code === 'email_taken') setFieldError('email', 'err.exists');
+    else toast(t('err.badLogin'));
+  }
 }
 
 async function handleSignin(fd) {
@@ -538,22 +551,26 @@ async function handleSignin(fd) {
   if (pass.length < 6) { setFieldError('password', 'err.pass'); return; }
   setFieldError('password', null);
 
-  const passwordHash = await hashPassword(pass);
-  const account = DB.accounts.get().find(a => a.email === email && a.passwordHash === passwordHash);
-  if (!account) { setFieldError('password', 'err.badLogin'); return; }
-
-  state.user = { name: account.name, email: account.email, role: account.role || 'user' };
-  DB.session.set(state.user);
-  toast(t('toast.signedIn'));
-  updateDOM();
-  setTimeout(() => go('auth'), 250);   // → cabinet
-  presenceHeartbeat();
+  try {
+    const r = await API.signin({ email, password: pass });
+    API.setToken(r.token);
+    state.user = r.user;
+    await refreshOrders();
+    toast(t('toast.signedIn'));
+    updateDOM();
+    setTimeout(() => go('auth'), 250);
+    presenceHeartbeat();
+  } catch (e) {
+    setFieldError('password', 'err.badLogin');
+  }
 }
 
-function signOut() {
+async function signOut() {
+  try { await API.signout(); } catch {}
+  API.setToken(null);
   presenceRemove();
   state.user = null;
-  localStorage.removeItem('md_session');
+  cache.orders = [];
   state.authMode = 'signin';
   updateDOM();
   toast(t('toast.signedOut'));
@@ -597,19 +614,21 @@ function bindAuth() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) { alert('Файл не є зображенням.'); return; }
-    const dataUrl = await imageFileToDataURL(file, { maxSide: 512, quality: 0.85 });
-    updateAccount({ avatar: dataUrl });
-    toast(t('toast.avatarUpdated'));
-    renderCabinet();
-    presenceHeartbeat();
+    try {
+      const r = await API.upload(file);
+      await updateAccount({ avatar: r.url });
+      toast(t('toast.avatarUpdated'));
+      renderCabinet();
+      presenceHeartbeat();
+    } catch (err) { alert('Не вдалося: ' + (err.message || err.code)); }
   });
 
   // Name edit
-  document.getElementById('btn-edit-name').addEventListener('click', () => {
+  document.getElementById('btn-edit-name').addEventListener('click', async () => {
     const cur = state.user?.name || '';
     const next = prompt(t('cab.namePrompt'), cur);
     if (!next || !next.trim() || next.trim() === cur) return;
-    updateAccount({ name: next.trim() });
+    await updateAccount({ name: next.trim() });
     toast(t('toast.nameUpdated'));
     renderCabinet();
     presenceHeartbeat();
@@ -642,7 +661,7 @@ function renderCabinet() {
   adminBtn.classList.toggle('hidden', !isAdmin);
 
   // Orders for this user
-  const myOrders = DB.orders.get().filter(o => o.userEmail === acc.email);
+  const myOrders = cache.orders;
   const total = myOrders.reduce((s,o) => s + o.total, 0);
   document.getElementById('stat-orders').textContent = myOrders.length;
   document.getElementById('stat-total').textContent = `${total.toLocaleString('uk-UA')} ${t('cart.currency')}`;
@@ -798,19 +817,11 @@ function renderShop() {
     const availClass = p.avail === 'order'
       ? 'bg-amber-500/15 text-amber-600 dark:text-amber-300'
       : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300';
-    const image = p.builtin
-      ? `<div class="prod-img" data-mono="${p.mono}" style="--pg:${p.pg}"></div>`
-      : `<div class="prod-img" style="background:#000"><img src="${p.photo}" alt="" class="absolute inset-0 w-full h-full object-cover" /></div>`;
-
-    let segments;
-    if (p.builtin) {
-      segments = segBlock(t('shop.size'), p.sizes, 'size');
-    } else {
-      segments = ''
-        + segBlock(t('shop.sizeTop'),    p.sizesTop,     'top')
-        + segBlock(t('shop.sizeBottom'), p.sizesBottom,  'bottom')
-        + segBlock(t('shop.pantsLen'),   p.pantsLengths, 'len');
-    }
+    const image = `<div class="prod-img" style="background:#000"><img src="${p.photo}" alt="" class="absolute inset-0 w-full h-full object-cover" /></div>`;
+    const segments = ''
+      + segBlock(t('shop.sizeTop'),    p.sizesTop,     'top')
+      + segBlock(t('shop.sizeBottom'), p.sizesBottom,  'bottom')
+      + segBlock(t('shop.pantsLen'),   p.pantsLengths, 'len');
 
     return `
     <article class="rounded-ios bg-white dark:bg-ios-darkCard p-3 shadow-sm flex flex-col" data-product="${p.id}">
@@ -958,20 +969,11 @@ function checkout() {
   setTimeout(openSheet, 250);   // contact sheet (Telegram / Instagram)
 }
 
-function placeOrder(items) {
+async function placeOrder(items) {
   if (!state.user) return;
   const total = items.reduce((s,i) => s + i.price * i.qty, 0);
-  const order = {
-    id: Date.now().toString(36).toUpperCase(),
-    userEmail: state.user.email,
-    userName: state.user.name,
-    items, total,
-    createdAt: new Date().toISOString(),
-    status: 'pending',
-  };
-  const list = DB.orders.get();
-  list.push(order);
-  DB.orders.set(list);
+  try { await API.addOrder({ items, total }); await refreshOrders(); }
+  catch (e) { alert('Помилка замовлення: ' + (e.message || e.code)); return; }
   toast(t('toast.orderPlaced'));
   renderCabinet();
   renderAdminOrders();
@@ -1127,15 +1129,17 @@ function bindAdmin() {
     const file = photoInput.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) { alert('Файл не є зображенням.'); photoInput.value = ''; return; }
-    const dataUrl = await imageFileToDataURL(file, { maxSide: 1600, quality: 0.85 });
-    state.adminPhotoData = dataUrl;
-    const preview = document.getElementById('p-photo-preview');
-    preview.src = dataUrl;
-    preview.classList.remove('hidden');
-    document.getElementById('p-photo-empty').classList.add('hidden');
+    try {
+      const r = await API.upload(file);
+      state.adminPhotoData = r.url;
+      const preview = document.getElementById('p-photo-preview');
+      preview.src = r.url;
+      preview.classList.remove('hidden');
+      document.getElementById('p-photo-empty').classList.add('hidden');
+    } catch (e) { alert('Не вдалося завантажити фото: ' + (e.message || e.code)); }
   });
 
-  document.getElementById('admin-form').addEventListener('submit', (e) => {
+  document.getElementById('admin-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
     const fd = new FormData(form);
@@ -1163,7 +1167,7 @@ function bindAdmin() {
     const oldPrice = (Number.isFinite(rawOld) && rawOld > price) ? rawOld : null;
 
     const product = {
-      id: 'c' + Date.now(), title: name, desc, price, oldPrice,
+      title: name, desc, price, oldPrice,
       sku: (fd.get('sku') || '').trim(),
       color: (fd.get('color') || '').trim(),
       category: state.adminCategory,
@@ -1171,11 +1175,9 @@ function bindAdmin() {
       brand: state.adminBrand,
       sizesTop, sizesBottom, pantsLengths,
       avail: state.adminAvail, photo: state.adminPhotoData,
-      createdAt: new Date().toISOString(),
     };
-    const list = DB.products_custom.get();
-    list.unshift(product);
-    DB.products_custom.set(list);
+    try { await API.addProduct(product); await refreshProducts(); }
+    catch (err) { alert('Не вдалося додати товар: ' + (err.message || err.code)); return; }
 
     form.reset();
     state.adminPhotoData = null;
@@ -1227,11 +1229,8 @@ function renderAdminList() {
       : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300';
     const title = productTitle(p);
     const desc = p.desc ? escapeHTML(p.desc) : '';
-    const image = p.builtin
-      ? `<div class="w-16 h-16 rounded-xl shrink-0 flex items-center justify-center font-black text-white text-lg" style="background:${p.pg}">${p.mono}</div>`
-      : `<img src="${p.photo}" class="w-16 h-16 rounded-xl object-cover shrink-0" alt="" />`;
-    const builtinBadge = p.builtin
-      ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-brand/10 text-brand dark:text-brand-light">${t('admin.templateBadge')}</span>` : '';
+    const image = `<img src="${p.photo}" class="w-16 h-16 rounded-xl object-cover shrink-0" alt="" />`;
+    const builtinBadge = '';
     return `
       <div class="flex items-center gap-3 rounded-2xl bg-black/[0.03] dark:bg-white/[0.05] p-3">
         ${image}
@@ -1253,16 +1252,11 @@ function renderAdminList() {
   }).join('');
 
   list.querySelectorAll('[data-del]').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const id = btn.getAttribute('data-del');
-      const isBuiltin = btn.getAttribute('data-builtin') === '1';
       if (!confirm(t('admin.confirmDel'))) return;
-      if (isBuiltin) {
-        const dl = DB.deleted_builtins.get();
-        if (!dl.includes(id)) { dl.push(id); DB.deleted_builtins.set(dl); }
-      } else {
-        DB.products_custom.set(DB.products_custom.get().filter(p => p.id !== id));
-      }
+      try { await API.delProduct(id); await refreshProducts(); }
+      catch (e) { alert('Помилка: ' + (e.message || e.code)); return; }
       toast(t('toast.productRemoved'));
       renderAdminList();
       renderShop();
@@ -1278,7 +1272,7 @@ function renderAdminOrders() {
   const count = document.getElementById('admin-orders-count');
   if (!list) return;
 
-  const orders = DB.orders.get().slice().reverse();
+  const orders = cache.orders.slice();
   count.textContent = `${orders.length} ${t('admin.count')}`;
   empty.classList.toggle('hidden', orders.length > 0);
 
@@ -1324,15 +1318,17 @@ function bindNews() {
     const file = photoInput.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) { alert('Файл не є зображенням.'); photoInput.value = ''; return; }
-    const dataUrl = await imageFileToDataURL(file, { maxSide: 1600, quality: 0.85 });
-    state.newsPhotoData = dataUrl;
-    const preview = document.getElementById('n-photo-preview');
-    preview.src = dataUrl;
-    preview.classList.remove('hidden');
-    document.getElementById('n-photo-empty').classList.add('hidden');
+    try {
+      const r = await API.upload(file);
+      state.newsPhotoData = r.url;
+      const preview = document.getElementById('n-photo-preview');
+      preview.src = r.url;
+      preview.classList.remove('hidden');
+      document.getElementById('n-photo-empty').classList.add('hidden');
+    } catch (e) { alert('Не вдалося завантажити фото: ' + (e.message || e.code)); }
   });
 
-  document.getElementById('news-form').addEventListener('submit', (e) => {
+  document.getElementById('news-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
     const fd = new FormData(form);
@@ -1344,16 +1340,8 @@ function bindNews() {
     if (!body)  { setFieldError('n-body',  'err.required'); ok = false; } else setFieldError('n-body', null);
     if (!ok) return;
 
-    const post = {
-      id: 'n' + Date.now(),
-      title, body,
-      cover: state.newsPhotoData || null,
-      createdAt: new Date().toISOString(),
-      authorName: state.user?.name || 'Admin',
-    };
-    const list = DB.news.get();
-    list.unshift(post);
-    DB.news.set(list);
+    try { await API.addNews({ title, body, photo: state.newsPhotoData || null }); await refreshNews(); }
+    catch (err) { alert('Помилка публікації: ' + (err.message || err.code)); return; }
 
     form.reset();
     state.newsPhotoData = null;
@@ -1371,7 +1359,7 @@ function renderNews() {
   const empty = document.getElementById('news-empty');
   if (!list) return;
 
-  const posts = DB.news.get();
+  const posts = cache.news;
   empty.classList.toggle('hidden', posts.length > 0);
   const isAdmin = state.user?.role === 'admin';
 
@@ -1379,8 +1367,8 @@ function renderNews() {
     const d = new Date(p.createdAt);
     const dateStr = d.toLocaleDateString(state.lang === 'ua' ? 'uk-UA' : 'en-GB',
       { day: '2-digit', month: 'long', year: 'numeric' });
-    const cover = p.cover
-      ? `<img src="${p.cover}" alt="" class="w-full aspect-[16/9] object-cover" />`
+    const cover = p.photo
+      ? `<img src="${p.photo}" alt="" class="w-full aspect-[16/9] object-cover" />`
       : `<div class="w-full aspect-[16/9] bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center">
            <img src="assets/logo.jpg" class="w-16 h-16 rounded-2xl opacity-90" alt="" />
          </div>`;
@@ -1419,11 +1407,12 @@ function renderNews() {
     b.addEventListener('click', () => openNewsPost(b.getAttribute('data-news-open')));
   });
   list.querySelectorAll('[data-news-del]').forEach(b => {
-    b.addEventListener('click', (e) => {
+    b.addEventListener('click', async (e) => {
       e.stopPropagation();
       const id = b.getAttribute('data-news-del');
       if (!confirm(t('news.confirmDel'))) return;
-      DB.news.set(DB.news.get().filter(x => x.id !== id));
+      try { await API.delNews(id); await refreshNews(); }
+      catch (err) { alert('Помилка: ' + (err.message || err.code)); return; }
       toast(t('news.removed'));
       renderNews();
     });
@@ -1433,7 +1422,7 @@ function renderNews() {
 }
 
 function openNewsPost(id) {
-  const post = DB.news.get().find(p => p.id === id);
+  const post = cache.news.find(p => p.id === id);
   if (!post) return;
   const d = new Date(post.createdAt);
   const dateStr = d.toLocaleDateString(state.lang === 'ua' ? 'uk-UA' : 'en-GB',
@@ -1442,7 +1431,7 @@ function openNewsPost(id) {
   document.getElementById('nv-body').textContent = post.body;
   document.getElementById('nv-date').textContent = dateStr;
   const cover = document.getElementById('nv-cover');
-  if (post.cover) { cover.src = post.cover; cover.classList.remove('hidden'); }
+  if (post.photo) { cover.src = post.photo; cover.classList.remove('hidden'); }
   else            { cover.classList.add('hidden'); cover.removeAttribute('src'); }
   openNewsView();
 }
@@ -1453,47 +1442,16 @@ function openNewsPost(id) {
 const PRESENCE_TTL = 20_000;         // treat entry as online if seen in last 20s
 const PRESENCE_INTERVAL = 5_000;     // heartbeat every 5s
 
-function presenceHeartbeat() {
-  const map = DB.online.get();
-  // Prune stale entries
-  const now = Date.now();
-  for (const [sid, e] of Object.entries(map)) {
-    if (now - (e.lastSeen || 0) > PRESENCE_TTL) delete map[sid];
-  }
-  if (state.user) {
-    const acc = currentAccount();
-    map[state.sessionId] = {
-      email: state.user.email,
-      name: state.user.name,
-      avatar: acc?.avatar || null,
-      role: state.user.role,
-      lastSeen: now,
-    };
-  } else {
-    delete map[state.sessionId];
-  }
-  DB.online.set(map);
+let onlineCount = 0;
+async function presenceHeartbeat() {
+  try {
+    const r = await API.presence(state.sessionId);
+    onlineCount = r.online || 0;
+  } catch {}
   renderOnline();
 }
-
-function presenceRemove() {
-  const map = DB.online.get();
-  delete map[state.sessionId];
-  DB.online.set(map);
-}
-
-function activeOnlineList() {
-  const map = DB.online.get();
-  const now = Date.now();
-  // Group by email, keep freshest
-  const byEmail = new Map();
-  for (const [, e] of Object.entries(map)) {
-    if (!e || now - (e.lastSeen || 0) > PRESENCE_TTL) continue;
-    const prev = byEmail.get(e.email);
-    if (!prev || prev.lastSeen < e.lastSeen) byEmail.set(e.email, e);
-  }
-  return Array.from(byEmail.values());
-}
+function presenceRemove() { /* server prunes by TTL */ }
+function activeOnlineList() { return []; /* only aggregate count is exposed by API */ }
 
 function renderOnline() {
   const list = document.getElementById('online-list');
@@ -1502,8 +1460,8 @@ function renderOnline() {
   if (!list) return;
 
   const users = activeOnlineList();
-  countEl.textContent = users.length;
-  empty.classList.toggle('hidden', users.length > 0);
+  countEl.textContent = onlineCount;
+  empty.classList.toggle('hidden', onlineCount > 0);
 
   list.innerHTML = users.map(u => {
     const initials = (u.name || '?').slice(0,2).toUpperCase();
@@ -1528,10 +1486,9 @@ function renderOnline() {
 }
 
 function viewUser(email) {
-  const acc = DB.accounts.get().find(a => a.email === email);
-  if (!acc) return;
-  const online = activeOnlineList().some(u => u.email === email);
-  const orders = DB.orders.get().filter(o => o.userEmail === email);
+  return; // detailed per-user view not available with server API; card no longer opens
+  // eslint-disable-next-line no-unreachable
+  const acc = null; const online = false; const orders = [];
 
   document.getElementById('us-name').textContent = acc.name;
   document.getElementById('us-email').textContent = acc.email;
@@ -1648,15 +1605,6 @@ function bindGlobal() {
   window.addEventListener('hashchange', handleHashChange);
   window.addEventListener('popstate', handleHashChange);
 
-  // Cross-tab sync of DB changes
-  window.addEventListener('storage', (e) => {
-    if (!e.key || !e.key.startsWith('md_')) return;
-    if (e.key === 'md_online') renderOnline();
-    if (e.key === 'md_orders') { renderCabinet(); renderAdminOrders(); }
-    if (e.key === 'md_products_custom') { renderShop(); renderAdminList(); }
-    if (e.key === 'md_accounts') { renderCabinet(); renderOnline(); }
-  });
-
   // Presence lifecycle
   window.addEventListener('beforeunload', presenceRemove);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) presenceHeartbeat(); });
@@ -1667,19 +1615,27 @@ function bindGlobal() {
 // =============================================================================
 async function boot() {
   applyTheme();
-  await seedAdmin();
   bindGlobal();
   bindAuth();
   bindAdmin();
   bindNews();
+
+  // Restore session, load data from server before first render
+  await refreshMe();
+  await Promise.all([refreshProducts(), refreshNews(), refreshOrders()]);
+
   updateDOM();
   if (window.lucide) window.lucide.createIcons();
 
-  // Initial route from URL hash (deep-linkable page)
   handleHashChange();
-
-  // Presence
   presenceHeartbeat();
   setInterval(presenceHeartbeat, PRESENCE_INTERVAL);
+  // Periodic data refresh so other devices see new items
+  setInterval(async () => {
+    await Promise.all([refreshProducts(), refreshNews()]);
+    if (state.currentPage === 'shop') renderShop();
+    if (state.currentPage === 'news') renderNews();
+    if (state.currentPage === 'admin') { renderAdminList(); renderAdminOrders(); }
+  }, 15000);
 }
 document.addEventListener('DOMContentLoaded', boot);
