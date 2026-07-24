@@ -54,6 +54,24 @@ function db(): PDO {
     error_log('DB connect failed: ' . $e->getMessage());
     json_err('db_unavailable', 500);
   }
+  // Lightweight auto-migrations for tables added after initial install.
+  try {
+    $pdo->exec(
+      'CREATE TABLE IF NOT EXISTS visits (
+        id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        session_id  VARCHAR(64) NOT NULL,
+        account_id  VARCHAR(64) NULL,
+        page        VARCHAR(64) NULL,
+        ref         VARCHAR(255) NULL,
+        ua          VARCHAR(255) NULL,
+        ip          VARCHAR(64) NULL,
+        created_at  BIGINT NOT NULL,
+        INDEX idx_visits_session (session_id),
+        INDEX idx_visits_created (created_at),
+        INDEX idx_visits_acc (account_id)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+    );
+  } catch (Throwable $e) { /* non-fatal */ }
   return $pdo;
 }
 

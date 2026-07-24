@@ -5,7 +5,7 @@
 // =============================================================================
 const translations = {
   ua: {
-    'nav.home': 'Головна', 'nav.shop': 'Магазин', 'nav.news': 'Новини', 'nav.auth': 'Акаунт', 'nav.admin': 'Адмін',
+    'nav.home': 'Головна', 'nav.shop': 'Магазин', 'nav.news': 'Новини', 'nav.sizes': 'Розмірні сітки', 'nav.auth': 'Акаунт', 'nav.admin': 'Адмін',
 
     'news.title': 'Новини', 'news.sub': 'Оновлення асортименту, історії, знижки',
     'news.add': 'Нова новина', 'news.empty': 'Новин поки немає. Заходь пізніше!',
@@ -117,6 +117,26 @@ const translations = {
     'admin.ordersTitle': 'Замовлення клієнтів', 'admin.ordersEmpty': 'Замовлень поки немає.',
     'admin.onlineTitle': 'Онлайн зараз', 'admin.onlineEmpty': 'Ніхто не онлайн.',
     'admin.onlineHint': 'Дані з цього браузера', 'admin.online': 'онлайн',
+    'admin.brandHint': 'Обери зі списку або впиши свій бренд. Порожньо — без бренду.',
+    'admin.statsTitle': 'Статистика сайту', 'admin.statsSub': 'Відвідування, реєстрації, замовлення',
+    'admin.statsChart': 'Візити за 14 днів', 'admin.statsChartHint': 'верх — усі, низ — унікальні',
+    'admin.usersTitle': 'Зареєстровані користувачі', 'admin.usersCount': 'користувачів',
+    'admin.usersEmpty': 'Ще ніхто не зареєстрований.',
+    'admin.stTotalUsers': 'Користувачі', 'admin.stTotalOrders': 'Замовлення',
+    'admin.stRevenue': 'Виручка', 'admin.stVisits': 'Візитів усього', 'admin.stUnique': 'Унікальних',
+    'admin.stToday': 'Сьогодні', 'admin.stWeek': 'За тиждень', 'admin.stMonth': 'За місяць',
+    'admin.stTopPages': 'Популярні сторінки (30 днів)',
+    'admin.userLastSeen': 'Останній візит', 'admin.userOrders': 'Замовлень', 'admin.userNever': 'ніколи',
+    'shop.discountsOnly': 'Тільки зі знижкою',
+    'sizes.title': 'Розмірні сітки', 'sizes.sub': 'Обери свій розмір за нашими таблицями',
+    'sizes.tabTops': 'Топи / халати', 'sizes.tabPants': 'Штани', 'sizes.tabShoes': 'Взуття',
+    'sizes.topsTitle': 'Топи, костюми, халати', 'sizes.topsHint': 'Виміри в сантиметрах. Заміри тіла — не одягу.',
+    'sizes.pantsTitle': 'Штани', 'sizes.pantsHint': 'Обхват талії, стегон, довжина по внутрішньому шву.',
+    'sizes.shoesTitle': 'Взуття', 'sizes.shoesHint': 'Довжина стопи в см. Якщо між двома розмірами — обирай більший.',
+    'sizes.lengthsHint': 'Petite: −5 см · Regular: як у таблиці · Tall: +5 см',
+    'sizes.size': 'Розмір', 'sizes.bust': 'Обхват грудей', 'sizes.waist': 'Обхват талії', 'sizes.hips': 'Обхват стегон',
+    'sizes.inseam': 'Довжина Regular', 'sizes.eu': 'EU', 'sizes.us': 'US', 'sizes.uk': 'UK', 'sizes.foot': 'Довжина стопи',
+    'sizes.helpTitle': 'Не впевнена в розмірі?', 'sizes.helpBody': 'Напиши нам у Telegram або на пошту — Дарія особисто підбере розмір під твої заміри.',
 
     'footer.rights': '© 2026 MEDIC DARIYA. Усі права захищено.',
 
@@ -126,7 +146,7 @@ const translations = {
     'prod.d4.title': 'Класичний медичний халат',
   },
   en: {
-    'nav.home': 'Home', 'nav.shop': 'Shop', 'nav.news': 'News', 'nav.auth': 'Account', 'nav.admin': 'Admin',
+    'nav.home': 'Home', 'nav.shop': 'Shop', 'nav.news': 'News', 'nav.sizes': 'Size charts', 'nav.auth': 'Account', 'nav.admin': 'Admin',
 
     'news.title': 'News', 'news.sub': 'New arrivals, stories, discounts',
     'news.add': 'New post', 'news.empty': 'No news yet. Check back later!',
@@ -238,6 +258,26 @@ const translations = {
     'admin.ordersTitle': 'Customer orders', 'admin.ordersEmpty': 'No orders yet.',
     'admin.onlineTitle': 'Online now', 'admin.onlineEmpty': 'Nobody online.',
     'admin.onlineHint': 'From this browser', 'admin.online': 'online',
+    'admin.brandHint': 'Pick from the list or type your own brand. Empty — no brand.',
+    'admin.statsTitle': 'Site analytics', 'admin.statsSub': 'Visits, sign-ups, orders',
+    'admin.statsChart': 'Visits — last 14 days', 'admin.statsChartHint': 'top — all, bottom — unique',
+    'admin.usersTitle': 'Registered users', 'admin.usersCount': 'users',
+    'admin.usersEmpty': 'No one has signed up yet.',
+    'admin.stTotalUsers': 'Users', 'admin.stTotalOrders': 'Orders',
+    'admin.stRevenue': 'Revenue', 'admin.stVisits': 'Total visits', 'admin.stUnique': 'Unique',
+    'admin.stToday': 'Today', 'admin.stWeek': 'Last 7 days', 'admin.stMonth': 'Last 30 days',
+    'admin.stTopPages': 'Top pages (30 days)',
+    'admin.userLastSeen': 'Last seen', 'admin.userOrders': 'Orders', 'admin.userNever': 'never',
+    'shop.discountsOnly': 'On sale only',
+    'sizes.title': 'Size charts', 'sizes.sub': 'Find your size in our tables',
+    'sizes.tabTops': 'Tops / gowns', 'sizes.tabPants': 'Pants', 'sizes.tabShoes': 'Shoes',
+    'sizes.topsTitle': 'Tops, scrubs, gowns', 'sizes.topsHint': 'Measurements in cm. Body measurements, not garment.',
+    'sizes.pantsTitle': 'Pants', 'sizes.pantsHint': 'Waist, hips, inseam length.',
+    'sizes.shoesTitle': 'Shoes', 'sizes.shoesHint': 'Foot length in cm. When between sizes — size up.',
+    'sizes.lengthsHint': 'Petite: −5 cm · Regular: as in table · Tall: +5 cm',
+    'sizes.size': 'Size', 'sizes.bust': 'Bust', 'sizes.waist': 'Waist', 'sizes.hips': 'Hips',
+    'sizes.inseam': 'Inseam (Regular)', 'sizes.eu': 'EU', 'sizes.us': 'US', 'sizes.uk': 'UK', 'sizes.foot': 'Foot length',
+    'sizes.helpTitle': 'Not sure about the size?', 'sizes.helpBody': 'Message us on Telegram or email — Dariya will pick a size for your measurements personally.',
 
     'footer.rights': '© 2026 MEDIC DARIYA. All rights reserved.',
 
@@ -288,6 +328,9 @@ const API = {
   orders: () => API.req('/api/orders.php'),
   addOrder: (body) => API.req('/api/orders.php?action=add', { method: 'POST', body }),
   presence: (sessionId) => API.req('/api/presence.php', { method: 'POST', body: { sessionId } }),
+  visit: (sessionId, page, ref) => API.req('/api/visit.php', { method: 'POST', body: { sessionId, page, ref } }),
+  adminUsers: () => API.req('/api/admin.php?action=users'),
+  adminStats: () => API.req('/api/admin.php?action=stats'),
   upload: (file) => { const fd = new FormData(); fd.append('file', file); return API.req('/api/upload.php', { method: 'POST', body: fd }); },
 };
 
@@ -345,6 +388,7 @@ const state = {
   shopCat: 'all',        // 'all' | category id
   shopGender: 'all',     // 'all' | 'female' | 'male' | 'unisex'
   shopBrand: 'all',      // 'all' | brand name
+  shopDiscount: false,   // when true — show only products with oldPrice > price
   newsPhotoData: null,
   sessionId: sessionStorage.getItem('md_sid') || (() => {
     const id = Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -414,7 +458,7 @@ function toggleTheme() {
 // =============================================================================
 // 6. Page navigation
 // =============================================================================
-const VALID_PAGES = new Set(['home','shop','news','auth','admin']);
+const VALID_PAGES = new Set(['home','shop','news','sizes','auth','admin']);
 
 function go(page, opts = {}) {
   if (!VALID_PAGES.has(page)) page = 'home';
@@ -431,6 +475,9 @@ function go(page, opts = {}) {
     target.style.animation = '';
   }
   updateNavThumb();
+  if (page === 'admin') { renderAdminUsers(); renderAdminStats(); }
+  // Fire-and-forget visit ping (do not block navigation)
+  try { API.visit(state.sessionId, page, document.referrer || ''); } catch {}
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   // Sync URL. `opts.silent` avoids feedback loops when navigating due to hashchange.
@@ -443,7 +490,7 @@ function go(page, opts = {}) {
 
 function pageTitle(page) {
   const base = 'MEDIC DARIYA';
-  const key = { home: null, shop: 'nav.shop', news: 'nav.news', auth: 'nav.auth', admin: 'nav.admin' }[page];
+  const key = { home: null, shop: 'nav.shop', news: 'nav.news', sizes: 'nav.sizes', auth: 'nav.auth', admin: 'nav.admin' }[page];
   return key ? `${t(key)} — ${base}` : `${base} — Premium Medical Apparel`;
 }
 
@@ -899,8 +946,21 @@ function renderShop() {
     if (state.shopCat !== 'all' && (p.category || 'scrubs') !== state.shopCat) return false;
     if (state.shopGender !== 'all' && (p.gender || 'unisex') !== state.shopGender) return false;
     if (state.shopBrand !== 'all' && (p.brand || '') !== state.shopBrand) return false;
+    if (state.shopDiscount && !(p.oldPrice && p.oldPrice > p.price)) return false;
     return true;
   });
+
+  const discountToggle = document.getElementById('discount-toggle');
+  if (discountToggle) {
+    discountToggle.classList.toggle('bg-brand', state.shopDiscount);
+    discountToggle.classList.toggle('text-white', state.shopDiscount);
+    discountToggle.classList.toggle('bg-black/5', !state.shopDiscount);
+    const dcount = document.getElementById('discount-count');
+    if (dcount) {
+      const n = allProducts().filter(p => p.oldPrice && p.oldPrice > p.price).length;
+      dcount.textContent = n > 0 ? '· ' + n : '';
+    }
+  }
 
   const emptyEl = document.getElementById('product-empty');
   if (emptyEl) emptyEl.classList.toggle('hidden', filtered.length > 0);
@@ -1202,14 +1262,13 @@ function bindAdmin() {
     });
   });
 
-  // Brand picker (single-select chips)
-  document.querySelectorAll('#p-brand button').forEach(b => {
-    b.addEventListener('click', () => {
-      document.querySelectorAll('#p-brand button').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      state.adminBrand = b.getAttribute('data-brand') || '';
+  // Brand input (free text with suggestions via <datalist>)
+  const brandInput = document.getElementById('p-brand-input');
+  if (brandInput) {
+    brandInput.addEventListener('input', () => {
+      state.adminBrand = brandInput.value.trim();
     });
-  });
+  }
 
   // Sizes multi-select toggles (top + bottom)
   document.querySelectorAll('#p-sizes-top .size-chip, #p-sizes-bottom .size-chip, #p-pants-len .size-chip').forEach(b => {
@@ -1310,9 +1369,8 @@ function resetAdminForm() {
   document.querySelectorAll('#p-gender button').forEach((b) => {
     b.classList.toggle('active', b.getAttribute('data-gender') === 'unisex');
   });
-  document.querySelectorAll('#p-brand button').forEach((b) => {
-    b.classList.toggle('active', !b.getAttribute('data-brand'));
-  });
+  const brandInput = document.getElementById('p-brand-input');
+  if (brandInput) brandInput.value = '';
   document.getElementById('p-photo-preview')?.classList.add('hidden');
   document.getElementById('p-photo-empty')?.classList.remove('hidden');
   const sheetTitle = document.getElementById('add-sheet-title');
@@ -1352,9 +1410,8 @@ function openEditProduct(id) {
     b.classList.toggle('active', b.getAttribute('data-gender') === state.adminGender);
   });
   state.adminBrand = p.brand || '';
-  document.querySelectorAll('#p-brand button').forEach((b) => {
-    b.classList.toggle('active', (b.getAttribute('data-brand') || '') === state.adminBrand);
-  });
+  const brandInputEdit = document.getElementById('p-brand-input');
+  if (brandInputEdit) brandInputEdit.value = state.adminBrand;
 
   const setSizes = (sel, values) => {
     const set = new Set(values || []);
@@ -1666,6 +1723,105 @@ function renderOnline() {
   });
 }
 
+async function renderAdminUsers() {
+  if (state.user?.role !== 'admin') return;
+  const list = document.getElementById('admin-users-list');
+  const empty = document.getElementById('admin-users-empty');
+  const countEl = document.getElementById('admin-users-count');
+  if (!list) return;
+  let data;
+  try { data = await API.adminUsers(); } catch { return; }
+  const users = data.users || [];
+  if (countEl) countEl.textContent = data.total ?? users.length;
+  if (empty) empty.classList.toggle('hidden', users.length > 0);
+  const fmtDate = (ms) => {
+    if (!ms) return t('admin.userNever');
+    const d = new Date(ms);
+    return d.toLocaleDateString(state.lang === 'ua' ? 'uk-UA' : 'en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  };
+  list.innerHTML = users.map(u => {
+    const initials = (u.name || '?').slice(0, 2).toUpperCase();
+    const badge = u.role === 'admin'
+      ? `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-brand/10 text-brand dark:text-brand-light">ADMIN</span>` : '';
+    return `
+      <div class="flex items-center gap-3 p-3 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04]">
+        <div class="w-9 h-9 rounded-full bg-brand text-white text-[12px] font-bold flex items-center justify-center shrink-0">${escapeHTML(initials)}</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-semibold text-[14px] truncate">${escapeHTML(u.name || '')}</span>
+            ${badge}
+          </div>
+          <div class="text-[12px] text-ios-text2 dark:text-ios-darkText2 truncate">${escapeHTML(u.email || '')}</div>
+        </div>
+        <div class="text-right shrink-0">
+          <div class="text-[11px] text-ios-text2 dark:text-ios-darkText2">${t('admin.userLastSeen')}: <span class="font-semibold">${fmtDate(u.lastSeen)}</span></div>
+          <div class="text-[11px] text-ios-text2 dark:text-ios-darkText2">${t('admin.userOrders')}: <span class="font-semibold text-brand dark:text-brand-light">${u.ordersCount || 0}</span></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function renderAdminStats() {
+  if (state.user?.role !== 'admin') return;
+  const cards = document.getElementById('admin-stats-cards');
+  const chart = document.getElementById('admin-stats-chart');
+  const top = document.getElementById('admin-stats-top');
+  if (!cards) return;
+  let s;
+  try { s = await API.adminStats(); } catch { return; }
+  const card = (label, val, hint = '') => `
+    <div class="p-3 rounded-2xl bg-black/[0.03] dark:bg-white/[0.04]">
+      <div class="text-[11px] text-ios-text2 dark:text-ios-darkText2 uppercase tracking-wider">${label}</div>
+      <div class="text-[22px] font-extrabold text-brand dark:text-brand-light leading-tight mt-0.5">${val}</div>
+      ${hint ? `<div class="text-[11px] text-ios-text2 dark:text-ios-darkText2 mt-0.5">${hint}</div>` : ''}
+    </div>`;
+  cards.innerHTML = [
+    card(t('admin.stTotalUsers'), s.totals.users),
+    card(t('admin.stTotalOrders'), s.totals.orders, s.totals.revenue.toLocaleString('uk-UA') + ' ' + t('cart.currency')),
+    card(t('admin.stVisits'),
+         `${s.visits.day} <span class="text-[13px] font-semibold opacity-70">/ ${t('admin.stToday').toLowerCase()}</span>`,
+         `${t('admin.stWeek')}: ${s.visits.week} · ${t('admin.stMonth')}: ${s.visits.month}`),
+    card(t('admin.stUnique'),
+         `${s.visits.uniqueDay} <span class="text-[13px] font-semibold opacity-70">/ ${t('admin.stToday').toLowerCase()}</span>`,
+         `${t('admin.stWeek')}: ${s.visits.uniqueWeek} · ${t('admin.stMonth')}: ${s.visits.uniqueMonth}`),
+  ].join('');
+
+  if (chart) {
+    const max = Math.max(1, ...s.byDay.map(d => d.visits));
+    chart.innerHTML = s.byDay.map(d => {
+      const h1 = Math.max(2, Math.round((d.visits / max) * 100));
+      const h2 = Math.max(1, Math.round((d.unique / max) * 100));
+      const day = new Date(d.ts);
+      const label = day.getDate();
+      return `
+        <div class="flex-1 flex flex-col items-center gap-0.5 group">
+          <div class="w-full flex flex-col justify-end" style="height:100%">
+            <div class="w-full bg-brand rounded-t-md" title="visits: ${d.visits}" style="height:${h1}%"></div>
+            <div class="w-full bg-brand/40" title="unique: ${d.unique}" style="height:${h2}%"></div>
+          </div>
+          <div class="text-[10px] text-ios-text2 dark:text-ios-darkText2">${label}</div>
+        </div>`;
+    }).join('');
+  }
+
+  if (top) {
+    if (!s.topPages || !s.topPages.length) { top.innerHTML = ''; return; }
+    const maxN = Math.max(1, ...s.topPages.map(p => p.count));
+    top.innerHTML = `
+      <div class="text-[13px] font-semibold text-ios-text2 dark:text-ios-darkText2 mb-2">${t('admin.stTopPages')}</div>
+      <div class="space-y-1.5">
+        ${s.topPages.map(p => `
+          <div class="flex items-center gap-3">
+            <span class="w-20 text-[12.5px] font-semibold truncate">${escapeHTML(p.page)}</span>
+            <div class="flex-1 h-2 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
+              <div class="h-full bg-brand" style="width:${(p.count / maxN * 100).toFixed(1)}%"></div>
+            </div>
+            <span class="text-[12px] font-bold text-brand dark:text-brand-light w-10 text-right">${p.count}</span>
+          </div>`).join('')}
+      </div>`;
+  }
+}
+
 function viewUser(email) {
   return; // detailed per-user view not available with server API; card no longer opens
   // eslint-disable-next-line no-unreachable
@@ -1763,6 +1919,22 @@ function bindGlobal() {
       renderShop();
     });
   });
+  // Discount-only toggle
+  const dToggle = document.getElementById('discount-toggle');
+  if (dToggle) dToggle.addEventListener('click', () => {
+    state.shopDiscount = !state.shopDiscount;
+    renderShop();
+  });
+  // Size charts tabs
+  document.querySelectorAll('#sizes-tabs [data-sz-tab]').forEach(b => {
+    b.addEventListener('click', () => {
+      const tab = b.getAttribute('data-sz-tab');
+      document.querySelectorAll('#sizes-tabs [data-sz-tab]').forEach(x => x.classList.toggle('active', x === b));
+      document.querySelectorAll('.sz-panel').forEach(p => p.classList.add('hidden'));
+      const panel = document.getElementById('sz-panel-' + tab);
+      if (panel) panel.classList.remove('hidden');
+    });
+  });
   document.querySelectorAll('[data-nav]').forEach(b =>
     b.addEventListener('click', () => go(b.getAttribute('data-nav')))
   );
@@ -1816,7 +1988,7 @@ async function boot() {
     await Promise.all([refreshProducts(), refreshNews()]);
     if (state.currentPage === 'shop') renderShop();
     if (state.currentPage === 'news') renderNews();
-    if (state.currentPage === 'admin') { renderAdminList(); renderAdminOrders(); }
+    if (state.currentPage === 'admin') { renderAdminList(); renderAdminOrders(); renderAdminUsers(); renderAdminStats(); }
   }, 15000);
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

@@ -84,6 +84,9 @@
         <button data-nav="news" class="nav-btn relative z-10 flex items-center gap-1.5 px-3 sm:px-4 h-8 text-[13px] font-semibold rounded-full transition-colors">
           <i data-lucide="newspaper" class="w-3.5 h-3.5"></i><span class="hidden sm:inline" data-i18n="nav.news">Новини</span>
         </button>
+        <button data-nav="sizes" class="nav-btn relative z-10 flex items-center gap-1.5 px-3 sm:px-4 h-8 text-[13px] font-semibold rounded-full transition-colors">
+          <i data-lucide="ruler" class="w-3.5 h-3.5"></i><span class="hidden sm:inline" data-i18n="nav.sizes">Розмірні сітки</span>
+        </button>
         <button data-nav="auth" class="nav-btn relative z-10 flex items-center gap-1.5 px-3 sm:px-4 h-8 text-[13px] font-semibold rounded-full transition-colors">
           <i data-lucide="user-round" class="w-3.5 h-3.5"></i><span class="hidden sm:inline" data-i18n="nav.auth">Акаунт</span>
         </button>
@@ -569,6 +572,118 @@
     </section>
 
     <!-- ==================================================== -->
+    <!-- PAGE: SIZE CHARTS -->
+    <!-- ==================================================== -->
+    <section id="page-sizes" class="page hidden">
+      <div class="max-w-4xl mx-auto px-5 sm:px-8 pt-8 pb-24">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-11 h-11 rounded-2xl bg-brand text-white flex items-center justify-center">
+            <i data-lucide="ruler" class="w-5 h-5"></i>
+          </div>
+          <div class="flex-1">
+            <h2 class="text-[28px] sm:text-[36px] font-extrabold tracking-tight" data-i18n="sizes.title">Розмірні сітки</h2>
+            <p class="text-ios-text2 dark:text-ios-darkText2 text-[14px]" data-i18n="sizes.sub">Обери свій розмір за нашими таблицями</p>
+          </div>
+        </div>
+
+        <div id="sizes-tabs" class="size-seg mb-5 max-w-md">
+          <button data-sz-tab="tops"   class="active"><span data-i18n="sizes.tabTops">Топи / халати</span></button>
+          <button data-sz-tab="pants"><span data-i18n="sizes.tabPants">Штани</span></button>
+          <button data-sz-tab="shoes"><span data-i18n="sizes.tabShoes">Взуття</span></button>
+        </div>
+
+        <div id="sz-panel-tops" class="rounded-[24px] bg-white dark:bg-ios-darkCard shadow-sm p-5 sm:p-6 mb-6 sz-panel">
+          <h3 class="font-bold text-[18px] mb-1" data-i18n="sizes.topsTitle">Топи, костюми, халати</h3>
+          <p class="text-[13px] text-ios-text2 dark:text-ios-darkText2 mb-4" data-i18n="sizes.topsHint">Виміри в сантиметрах. Заміри тіла — не одягу.</p>
+          <div class="overflow-x-auto -mx-2">
+            <table class="w-full text-[13px] min-w-[520px]">
+              <thead>
+                <tr class="text-left border-b border-black/10 dark:border-white/10">
+                  <th class="py-2 px-3 font-semibold" data-i18n="sizes.size">Розмір</th>
+                  <th class="py-2 px-3 font-semibold" data-i18n="sizes.bust">Обхват грудей</th>
+                  <th class="py-2 px-3 font-semibold" data-i18n="sizes.waist">Обхват талії</th>
+                  <th class="py-2 px-3 font-semibold" data-i18n="sizes.hips">Обхват стегон</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-black/5 dark:divide-white/5">
+                <tr><td class="py-2 px-3 font-bold">XS</td><td class="py-2 px-3">80–84</td><td class="py-2 px-3">60–64</td><td class="py-2 px-3">86–90</td></tr>
+                <tr><td class="py-2 px-3 font-bold">S</td><td class="py-2 px-3">85–89</td><td class="py-2 px-3">65–69</td><td class="py-2 px-3">91–95</td></tr>
+                <tr><td class="py-2 px-3 font-bold">M</td><td class="py-2 px-3">90–94</td><td class="py-2 px-3">70–74</td><td class="py-2 px-3">96–100</td></tr>
+                <tr><td class="py-2 px-3 font-bold">L</td><td class="py-2 px-3">95–100</td><td class="py-2 px-3">75–80</td><td class="py-2 px-3">101–106</td></tr>
+                <tr><td class="py-2 px-3 font-bold">XL</td><td class="py-2 px-3">101–107</td><td class="py-2 px-3">81–87</td><td class="py-2 px-3">107–113</td></tr>
+                <tr><td class="py-2 px-3 font-bold">2XL</td><td class="py-2 px-3">108–115</td><td class="py-2 px-3">88–95</td><td class="py-2 px-3">114–121</td></tr>
+                <tr><td class="py-2 px-3 font-bold">3XL</td><td class="py-2 px-3">116–124</td><td class="py-2 px-3">96–104</td><td class="py-2 px-3">122–130</td></tr>
+                <tr><td class="py-2 px-3 font-bold">4XL</td><td class="py-2 px-3">125–133</td><td class="py-2 px-3">105–113</td><td class="py-2 px-3">131–139</td></tr>
+                <tr><td class="py-2 px-3 font-bold">5XL</td><td class="py-2 px-3">134–142</td><td class="py-2 px-3">114–122</td><td class="py-2 px-3">140–148</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="sz-panel-pants" class="rounded-[24px] bg-white dark:bg-ios-darkCard shadow-sm p-5 sm:p-6 mb-6 sz-panel hidden">
+          <h3 class="font-bold text-[18px] mb-1" data-i18n="sizes.pantsTitle">Штани</h3>
+          <p class="text-[13px] text-ios-text2 dark:text-ios-darkText2 mb-4" data-i18n="sizes.pantsHint">Обхват талії, стегон, довжина по внутрішньому шву.</p>
+          <div class="overflow-x-auto -mx-2">
+            <table class="w-full text-[13px] min-w-[520px]">
+              <thead>
+                <tr class="text-left border-b border-black/10 dark:border-white/10">
+                  <th class="py-2 px-3 font-semibold" data-i18n="sizes.size">Розмір</th>
+                  <th class="py-2 px-3 font-semibold" data-i18n="sizes.waist">Обхват талії</th>
+                  <th class="py-2 px-3 font-semibold" data-i18n="sizes.hips">Обхват стегон</th>
+                  <th class="py-2 px-3 font-semibold" data-i18n="sizes.inseam">Довжина Regular</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-black/5 dark:divide-white/5">
+                <tr><td class="py-2 px-3 font-bold">XS</td><td class="py-2 px-3">60–64</td><td class="py-2 px-3">86–90</td><td class="py-2 px-3">78</td></tr>
+                <tr><td class="py-2 px-3 font-bold">S</td><td class="py-2 px-3">65–69</td><td class="py-2 px-3">91–95</td><td class="py-2 px-3">79</td></tr>
+                <tr><td class="py-2 px-3 font-bold">M</td><td class="py-2 px-3">70–74</td><td class="py-2 px-3">96–100</td><td class="py-2 px-3">80</td></tr>
+                <tr><td class="py-2 px-3 font-bold">L</td><td class="py-2 px-3">75–80</td><td class="py-2 px-3">101–106</td><td class="py-2 px-3">81</td></tr>
+                <tr><td class="py-2 px-3 font-bold">XL</td><td class="py-2 px-3">81–87</td><td class="py-2 px-3">107–113</td><td class="py-2 px-3">82</td></tr>
+                <tr><td class="py-2 px-3 font-bold">2XL</td><td class="py-2 px-3">88–95</td><td class="py-2 px-3">114–121</td><td class="py-2 px-3">83</td></tr>
+                <tr><td class="py-2 px-3 font-bold">3XL</td><td class="py-2 px-3">96–104</td><td class="py-2 px-3">122–130</td><td class="py-2 px-3">84</td></tr>
+              </tbody>
+            </table>
+            <p class="text-[12px] text-ios-text2 dark:text-ios-darkText2 mt-3 ml-3" data-i18n="sizes.lengthsHint">Petite: −5 см · Regular: як у таблиці · Tall: +5 см</p>
+          </div>
+        </div>
+
+        <div id="sz-panel-shoes" class="rounded-[24px] bg-white dark:bg-ios-darkCard shadow-sm p-5 sm:p-6 mb-6 sz-panel hidden">
+          <h3 class="font-bold text-[18px] mb-1" data-i18n="sizes.shoesTitle">Взуття</h3>
+          <p class="text-[13px] text-ios-text2 dark:text-ios-darkText2 mb-4" data-i18n="sizes.shoesHint">Довжина стопи в см. Якщо між двома розмірами — обирай більший.</p>
+          <div class="overflow-x-auto -mx-2">
+            <table class="w-full text-[13px] min-w-[420px]">
+              <thead>
+                <tr class="text-left border-b border-black/10 dark:border-white/10">
+                  <th class="py-2 px-3 font-semibold" data-i18n="sizes.eu">EU</th>
+                  <th class="py-2 px-3 font-semibold" data-i18n="sizes.us">US</th>
+                  <th class="py-2 px-3 font-semibold" data-i18n="sizes.uk">UK</th>
+                  <th class="py-2 px-3 font-semibold" data-i18n="sizes.foot">Довжина стопи</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-black/5 dark:divide-white/5">
+                <tr><td class="py-2 px-3 font-bold">36</td><td class="py-2 px-3">5</td><td class="py-2 px-3">3.5</td><td class="py-2 px-3">22.5 см</td></tr>
+                <tr><td class="py-2 px-3 font-bold">37</td><td class="py-2 px-3">6</td><td class="py-2 px-3">4</td><td class="py-2 px-3">23 см</td></tr>
+                <tr><td class="py-2 px-3 font-bold">38</td><td class="py-2 px-3">7</td><td class="py-2 px-3">5</td><td class="py-2 px-3">24 см</td></tr>
+                <tr><td class="py-2 px-3 font-bold">39</td><td class="py-2 px-3">8</td><td class="py-2 px-3">6</td><td class="py-2 px-3">24.5 см</td></tr>
+                <tr><td class="py-2 px-3 font-bold">40</td><td class="py-2 px-3">9</td><td class="py-2 px-3">7</td><td class="py-2 px-3">25.5 см</td></tr>
+                <tr><td class="py-2 px-3 font-bold">41</td><td class="py-2 px-3">10</td><td class="py-2 px-3">7.5</td><td class="py-2 px-3">26 см</td></tr>
+                <tr><td class="py-2 px-3 font-bold">42</td><td class="py-2 px-3">11</td><td class="py-2 px-3">8</td><td class="py-2 px-3">27 см</td></tr>
+                <tr><td class="py-2 px-3 font-bold">43</td><td class="py-2 px-3">11.5</td><td class="py-2 px-3">9</td><td class="py-2 px-3">27.5 см</td></tr>
+                <tr><td class="py-2 px-3 font-bold">44</td><td class="py-2 px-3">12</td><td class="py-2 px-3">10</td><td class="py-2 px-3">28.5 см</td></tr>
+                <tr><td class="py-2 px-3 font-bold">45</td><td class="py-2 px-3">13</td><td class="py-2 px-3">11</td><td class="py-2 px-3">29 см</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="rounded-[24px] bg-brand/5 dark:bg-brand/10 border border-brand/20 p-5 text-[13px] text-ios-text2 dark:text-ios-darkText2">
+          <p class="font-semibold text-brand dark:text-brand-light mb-1" data-i18n="sizes.helpTitle">Не впевнена в розмірі?</p>
+          <p data-i18n="sizes.helpBody">Напиши нам у Telegram або на пошту — Дарія особисто підбере розмір під твої заміри.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================================================== -->
     <!-- PAGE 4: ADMIN PANEL -->
     <!-- ==================================================== -->
     <section id="page-admin" class="page hidden">
@@ -611,6 +726,37 @@
           </div>
           <div id="admin-list" class="space-y-3"></div>
           <p id="admin-empty" class="hidden text-center text-ios-text2 dark:text-ios-darkText2 text-[14px] py-10" data-i18n="admin.empty">Поки що немає доданих товарів. Кнопка «+ Додати товар» — в каталозі.</p>
+        </div>
+
+        <!-- Site analytics (visits + registered users) -->
+        <div class="rounded-[24px] bg-white dark:bg-ios-darkCard shadow-sm p-5 sm:p-6 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-bold text-[18px]" data-i18n="admin.statsTitle">Статистика сайту</h3>
+              <span class="text-[13px] text-ios-text2 dark:text-ios-darkText2" data-i18n="admin.statsSub">Відвідування, реєстрації, замовлення</span>
+            </div>
+          </div>
+          <div id="admin-stats-cards" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4"></div>
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-[13px] font-semibold text-ios-text2 dark:text-ios-darkText2" data-i18n="admin.statsChart">Візити за 14 днів</div>
+              <div class="text-[11px] text-ios-text2 dark:text-ios-darkText2" data-i18n="admin.statsChartHint">верх — усі, низ — унікальні</div>
+            </div>
+            <div id="admin-stats-chart" class="flex items-end gap-1 h-28"></div>
+          </div>
+          <div id="admin-stats-top" class="mt-5"></div>
+        </div>
+
+        <!-- Registered users -->
+        <div class="rounded-[24px] bg-white dark:bg-ios-darkCard shadow-sm p-5 sm:p-6 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="font-bold text-[18px]" data-i18n="admin.usersTitle">Зареєстровані користувачі</h3>
+              <span class="text-[13px] text-ios-text2 dark:text-ios-darkText2"><span id="admin-users-count">0</span> <span data-i18n="admin.usersCount">користувачів</span></span>
+            </div>
+          </div>
+          <div id="admin-users-list" class="space-y-2"></div>
+          <p id="admin-users-empty" class="hidden text-center text-ios-text2 dark:text-ios-darkText2 text-[14px] py-6" data-i18n="admin.usersEmpty">Ще ніхто не зареєстрований.</p>
         </div>
 
         <!-- All orders (admin sees every customer order) -->
@@ -667,19 +813,21 @@
               </div>
             </div>
 
-            <div>
-              <div class="text-[12px] font-medium text-ios-text2 dark:text-ios-darkText2 mb-1.5 ml-1" data-i18n="admin.brand">Бренд</div>
-              <div id="p-brand" class="flex flex-wrap gap-2">
-                <button type="button" data-brand=""              class="size-chip active" data-i18n="brand.none">Без бренду</button>
-                <button type="button" data-brand="Cherokee"      class="size-chip">Cherokee</button>
-                <button type="button" data-brand="Figs"          class="size-chip">Figs</button>
-                <button type="button" data-brand="Skechers"      class="size-chip">Skechers</button>
-                <button type="button" data-brand="Grey's Anatomy" class="size-chip">Grey's Anatomy</button>
-                <button type="button" data-brand="Jaanuu"        class="size-chip">Jaanuu</button>
-                <button type="button" data-brand="Medelita"      class="size-chip">Medelita</button>
-                <button type="button" data-brand="Healing Hands" class="size-chip">Healing Hands</button>
-                <button type="button" data-brand="Dickies"       class="size-chip">Dickies</button>
-              </div>
+            <div class="ios-field">
+              <label for="p-brand-input" data-i18n="admin.brand">Бренд</label>
+              <input id="p-brand-input" name="brand" type="text" list="brand-suggest" placeholder="KOI, Cherokee, Figs…" autocomplete="off" />
+              <datalist id="brand-suggest">
+                <option value="KOI"></option>
+                <option value="Cherokee"></option>
+                <option value="Figs"></option>
+                <option value="Skechers"></option>
+                <option value="Grey's Anatomy"></option>
+                <option value="Jaanuu"></option>
+                <option value="Medelita"></option>
+                <option value="Healing Hands"></option>
+                <option value="Dickies"></option>
+              </datalist>
+              <p class="text-[11px] text-ios-text2 dark:text-ios-darkText2 mt-1 ml-1" data-i18n="admin.brandHint">Обери зі списку або впиши свій бренд. Порожньо — без бренду.</p>
             </div>
 
             <div>
@@ -829,10 +977,19 @@
         </div>
 
         <!-- Availability filter (segmented) -->
-        <div id="avail-seg" class="size-seg mb-4 max-w-md">
+        <div id="avail-seg" class="size-seg mb-3 max-w-md">
           <button data-avail-filter="all"   class="active"><span data-i18n="shop.filterAll">Всі</span></button>
           <button data-avail-filter="stock"><span data-i18n="shop.filterStock">В наявності</span></button>
           <button data-avail-filter="order"><span data-i18n="shop.filterOrder">Під замовлення</span></button>
+        </div>
+
+        <!-- Discount quick filter -->
+        <div class="mb-4">
+          <button id="discount-toggle" class="inline-flex items-center gap-2 px-3 h-9 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/15 text-[13px] font-semibold transition">
+            <i data-lucide="badge-percent" class="w-4 h-4"></i>
+            <span data-i18n="shop.discountsOnly">Тільки зі знижкою</span>
+            <span id="discount-count" class="text-brand dark:text-brand-light font-bold"></span>
+          </button>
         </div>
 
         <!-- Category chips -->

@@ -71,3 +71,17 @@ CREATE TABLE IF NOT EXISTS presence (
   seen_at     BIGINT NOT NULL,
   INDEX idx_presence_seen (seen_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS visits (
+  id          BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  session_id  VARCHAR(64) NOT NULL,
+  account_id  VARCHAR(64) NULL,
+  page        VARCHAR(64) NULL,
+  ref         VARCHAR(255) NULL,
+  ua          VARCHAR(255) NULL,
+  ip          VARCHAR(64) NULL,
+  created_at  BIGINT NOT NULL,
+  INDEX idx_visits_session (session_id),
+  INDEX idx_visits_created (created_at),
+  INDEX idx_visits_acc (account_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
